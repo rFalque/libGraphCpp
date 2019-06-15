@@ -49,7 +49,7 @@ make
 
 ## Graph editing:
 Open [Blender](https://www.blender.org/) and start creating a graph. A mesh can be easily transformed into a graph by deleting the faces only (change to `edit mode`, select everything `a`, open the delete menu `del`, pick `Only faces`). 
-![Graph editing](./graph_editing_blender.png "Graph editing with blender")
+![Graph editing](./images/graph_editing_blender.png "Graph editing with blender")
 
 ## Other alternatives:
 * [OGDF](http://www.ogdf.net): (C++) self-contained class library for the automatic layout of diagrams. OGDF offers sophisticated algorithms and data structures to use within your own applications or scientific projects (including triconnectivity tests in linear time with SPQR decomposition)
