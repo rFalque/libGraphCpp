@@ -1,0 +1,18 @@
+# input output file path data
+io_files:
+  #graph_obj: "../data/graphs_test/0_graph_complete.obj"
+  #graph_obj: "../data/graphs_test/1_graph_complete_smaller.obj"
+  graph_obj: "../data/graphs_test/3_1_node_connectetivity.obj"
+  #graph_obj: "../data/graphs_test/4_1_edge_connectetivity.obj"
+  #graph_obj: "../data/graphs_test/5_2_edge_connectetivity.obj"
+  
+general_params:
+  verbose: false         # enable / disable outputs (true / false)
+  visualization: true   # enable / disable visualizations (true / false)
+
+visualization_params:
+  nodes_ratio: 50.0
+  edges_ratio: 200.0
+  graph_res: 30.0
+  nodes_color : [1.0, 0.1, 0.1]
+  edges_color : [0.1, 0.1, 0.1]
