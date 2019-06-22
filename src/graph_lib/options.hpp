@@ -7,12 +7,14 @@
 
 struct options
 {
-    /* data */
+    // path to the graph to load
     std::string path_graph_obj;
 
-    bool   visualization;
-    bool   verbose;
+    // general options
+    bool visualization;
+    bool verbose;
 
+    // visualization parameters
     double nodes_ratio;
     double edges_ratio;
     double graph_res;
@@ -43,18 +45,18 @@ struct options
         YAML::Node config = YAML::LoadFile(config_file);
         
         // IO
-        path_graph_obj                  = config["io_files"]["graph_obj"].as<std::string>();
+        path_graph_obj     = config["io_files"]["graph_obj"].as<std::string>();
 
         // general options
-        visualization                   = config["general_params"]["visualization"].as<bool>();
-        verbose                         = config["general_params"]["verbose"].as<bool>();
+        visualization      = config["general_params"]["visualization"].as<bool>();
+        verbose            = config["general_params"]["verbose"].as<bool>();
 
         // visualization parameters
-        nodes_ratio                     = config["visualization_params"]["nodes_ratio"].as<double>();
-        edges_ratio                     = config["visualization_params"]["edges_ratio"].as<double>();
-        graph_res                       = config["visualization_params"]["graph_res"].as<double>();
-        nodes_color                     = config["visualization_params"]["nodes_color"].as<std::vector<double>>();
-        edges_color                     = config["visualization_params"]["edges_color"].as<std::vector<double>>();
+        nodes_ratio        = config["visualization_params"]["nodes_ratio"].as<double>();
+        edges_ratio        = config["visualization_params"]["edges_ratio"].as<double>();
+        graph_res          = config["visualization_params"]["graph_res"].as<double>();
+        nodes_color        = config["visualization_params"]["nodes_color"].as<std::vector<double>>();
+        edges_color        = config["visualization_params"]["edges_color"].as<std::vector<double>>();
 
         if (verbose)
             print();
