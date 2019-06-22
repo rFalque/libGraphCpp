@@ -22,6 +22,7 @@
 
 int main(int argc, char* argv[])
 {
+
     options opts;
     opts.loadYAML("../tests_config.yaml");
 
@@ -34,7 +35,7 @@ int main(int argc, char* argv[])
     Graph * graph;
 
     // disconnected graph
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
     graph->init();
     if (!graph->is_connected() && !graph->is_biconnected() && !graph->is_triconnected())
         std::cout << "test connectivity for disconnected graph             [\033[1;32mPASSED\033[0m]\n";
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
         graph->plot();
 
     // connected graph
-    graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
     graph->init();
     if (graph->is_connected() && !graph->is_biconnected() && !graph->is_triconnected())
         std::cout << "test connectivity for 1-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
         graph->plot();
 
     // biconnected graph
-    graph = new Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts);
     graph->init();
     if (graph->is_connected() && graph->is_biconnected() && !graph->is_triconnected())
         std::cout << "test connectivity for 2-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
@@ -64,7 +65,7 @@ int main(int argc, char* argv[])
         graph->plot();
 
     // triconnected graph
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
     graph->init();
     if (graph->is_connected() && graph->is_biconnected() && graph->is_triconnected())
         std::cout << "test connectivity for 3-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 
     // unreachable points (return inf)
     std::cout << "\nTest Dijkstra's algorithm :\n";
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
     graph->init();
     if ( graph->dijkstra(0, 1) == std::numeric_limits<double>::infinity() )
         std::cout << "test Dijkstra for disconnected graph                 [\033[1;32mPASSED\033[0m]\n";
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
     }
 
     // reachable points (return exact dist)
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts.verbose);
+    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
     graph->init();
     if ( graph->dijkstra(0, 1) == 20 )
         std::cout << "test Dijkstra for connected graph                    [\033[1;32mPASSED\033[0m]\n";
