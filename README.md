@@ -48,7 +48,7 @@ make
 ![Graph visualization](./images/graph_libigl_viewer.png "Graph visualization with libigl")
 
 ## Graph editing:
-Open [Blender](https://www.blender.org/) and start creating a graph. A mesh can be easily transformed into a graph by deleting the faces only (change to `edit mode`, select everything `a`, open the delete menu `del`, pick `Only faces`). 
+Open [Blender](https://www.blender.org/) and start creating a graph. A mesh can be easily transformed into a graph by deleting the faces only (change to `edit mode`, select everything `a`, open the delete menu `del`, pick `Only faces`). See this [cheatsheet](https://bcgiu.wordpress.com/2015/02/12/best-blender-key-map-infographic/) for a complete key map.
 ![Graph editing](./images/graph_editing_blender.png "Graph editing with blender")
 
 ## Other alternatives:
