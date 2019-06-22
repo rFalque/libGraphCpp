@@ -157,9 +157,9 @@ public:
 	}
 
 	// return the set of one cut vertices
-	bool is_biconnected(std::vector< int >& one_cut_vertices){
-		if (is_biconnected_ == -1)
-		{
+	bool is_biconnected(std::vector< int >& one_cut_vertices)
+	{
+		if (is_biconnected_ == -1) {
 			// check for 2 node connectivity:
 			std::vector<bool> visited(num_nodes_, false);
 			std::vector<int> parent(num_nodes_, -1);
@@ -175,20 +175,21 @@ public:
 			// Now ap[] contains articulation points, print them and store them into one_cut_vertices_
 			one_cut_vertices.clear();
 			for (int i = 0; i < num_nodes_; i++) 
-				if (ap[i] == true)
-				{
+				if (ap[i] == true) {
 					one_cut_vertices.push_back(i);
 					if (verbose_)
 						std::cout << "Articulation point " << i << " at: "  << nodes_.row(i) << std::endl;
 				}
 			is_biconnected_ = std::none_of(ap.begin(), ap.end(), [](bool v) { return v; });
-			if (verbose_)
-				std::cout << "graph is 2-connected: " << is_biconnected_ << std::endl;
 
 			// if not biconnected, update triconnectivity
 			if (is_biconnected_ == 0)
 				is_triconnected_ = 0;
 		}
+
+		if (verbose_)
+			std::cout << "graph is 2-connected: " << is_biconnected_ << std::endl;
+
 		return is_biconnected_;
 	}
 
@@ -199,7 +200,8 @@ public:
 	}
 
 	// return the set of two cut vertices
-	bool is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices){ 
+	bool is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices)
+	{ 
 		/* this function run in quadratic time, this is not the most efficient to do it
 		 * for alternative, see these papers:
 		 * - Finding the Triconnected Components of a Graph (1972)
@@ -208,11 +210,9 @@ public:
 		 * - http://www.ogdf.net/doku.php
 		 * - https://github.com/adrianN/Triconnectivity
 		 */
-		if (is_triconnected_ == -1)
-		{
+		if (is_triconnected_ == -1) {
 			is_triconnected_ = true;
-			for (int i=0; i<num_nodes_; i++)
-			{
+			for (int i=0; i<num_nodes_; i++) {
 				std::vector< int > one_cut_vertices;
 				Graph reduced_graph(nodes_, edges_, false);
 				reduced_graph.init();
@@ -220,8 +220,7 @@ public:
 				bool reduced_graph_is_biconnected = reduced_graph.is_biconnected(one_cut_vertices);
 
 				if (not reduced_graph_is_biconnected)
-					for (int j=0; j<one_cut_vertices.size(); j++)
-					{
+					for (int j=0; j<one_cut_vertices.size(); j++) {
 						int node_offset = (one_cut_vertices[j]>=i); // offset needed because a node has been deleted
 						two_cut_vertices.push_back(std::make_pair(i, one_cut_vertices[j]+node_offset));
 					}
@@ -231,8 +230,7 @@ public:
 
 		removeDuplicates(two_cut_vertices);
 
-		if (verbose_)
-		{
+		if (verbose_) {
 			std::cout << "graph is 3-connected: " << is_triconnected_ << std::endl;
 			for (int i = 0; i<two_cut_vertices.size(); i++)
 				std::cout << "two_cut_vertices between node " << two_cut_vertices[i].first <<" and node " << two_cut_vertices[i].second << std::endl;
@@ -249,8 +247,7 @@ public:
 
 	// return the set of bridges
 	bool has_bridges(std::vector< std::pair<int, int> > bridges){
-		if (has_bridges_ == -1)
-		{
+		if (has_bridges_ == -1) {
 			// check for bridges:
 
 			std::vector<bool> visited(num_nodes_, false);
@@ -272,6 +269,10 @@ public:
 			else
 				has_bridges_ = 1;
 		}
+
+		if (verbose_)
+			std::cout << "graph has bridges: " << has_bridges_ << std::endl;
+		
 		return has_bridges_;
 	}
 
