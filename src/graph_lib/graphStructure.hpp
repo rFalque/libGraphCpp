@@ -15,27 +15,31 @@
 class Graph
 {
 private:
-	Eigen::MatrixXd nodes_;
-	Eigen::MatrixXi edges_;
+	bool verbose_ = true;                                               // enable/disable the couts
 
-	std::vector< std::vector<int> > adjacency_list_;
-	std::vector< std::vector<int> > adjacency_edge_list_;
-	Eigen::VectorXd edges_length_;
-
-	int num_nodes_;
-	int num_edges_;
+	// basic structure for edges and nodes
+	Eigen::MatrixXd nodes_;                                             // should be a N by 3 matrix of doubles
+	Eigen::MatrixXi edges_;                                             // should be a M by 2 matrix of integers
+	int num_nodes_;                                                     // set to N
+	int num_edges_;                                                     // set to M
 	
-	int is_connected_ = -1; // 0 no, 1 yes, -1 undefined
-	int is_biconnected_ = -1; // 0 no, 1 yes, -1 undefined
-	int is_triconnected_ = -1; // 0 no, 1 yes, -1 undefined
-	int has_bridges_ = -1; // 0 no, 1 yes, -1 undefined
+	// structures used for fast circulation through data
+	std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
+	std::vector< std::vector<int> > adjacency_edge_list_;               // contains for each nodes, its edges neighbors
+	Eigen::VectorXd edges_length_;                                      // used only for Dijkstra
 
-	bool verbose_ = true;
+	// connectivity properties
+	int is_connected_ = -1;                                             // 0 no, 1 yes, -1 undefined
+	int is_biconnected_ = -1;                                           // 0 no, 1 yes, -1 undefined
+	int is_triconnected_ = -1;                                          // 0 no, 1 yes, -1 undefined
+	int has_bridges_ = -1;                                              // 0 no, 1 yes, -1 undefined
 
-	std::vector< std::pair<int, int> > bridges_;
-	std::vector< int > one_cut_vertices_; // articulation points
-	std::vector< std::pair<int, int> > two_cut_vertices_;
+	// storing of the cut sets
+	std::vector< int > one_cut_vertices_;                               // set of articulation points
+	std::vector< std::pair<int, int> > two_cut_vertices_;               // set of two-cut vertices
+	std::vector< std::pair<int, int> > bridges_;                        // set of briges
 	
+	// internal functions used iteratively (defined at the bottom of the file)
 	void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 	void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
 	void removeDuplicates(std::vector<std::pair<int, int>>& v);
@@ -46,6 +50,7 @@ private:
 
 public:
 
+	// overloaded creations of the class (set verbose and load the data)
 	Graph(std::string file_name){
 		readGraphOBJ(file_name, nodes_, edges_);
 	}
@@ -66,19 +71,20 @@ public:
 		verbose_ = verbose;
 	}
 
+	// destructor
 	~Graph(){
 	}
 
+	// initialisation of the private variables
 	bool init()
 	{
-		if (nodes_.cols()!=3 || edges_.cols()!=2)
-		{
+		if (nodes_.cols()!=3 || edges_.cols()!=2) {
 			std::cout << "Error: wrong graph dimensions" << std::endl;
 			std::exit(1);
 		}
 
-		adjacency_list_.clear();		// for each node, stors adjacent nodes
-		adjacency_edge_list_.clear();	// for each edges, store adjacent edges
+		one_cut_vertices_.clear();
+		two_cut_vertices_.clear();
 		bridges_.clear();
 
 		// set up properties
@@ -96,11 +102,15 @@ public:
 		return true;
 	}
 
-
 	void set_adjacency_lists()
 	{
 		// TODO: - the if statement should be removed for undirected graphs as they are not needed
 		//       - is the adjacency_edge_list_ needed?
+
+		// make sure the lists are empty to start with
+		adjacency_list_.clear();
+		adjacency_edge_list_.clear();
+		
 		adjacency_list_.resize(num_nodes_);
 		adjacency_edge_list_.resize(num_nodes_);
 		
@@ -238,9 +248,10 @@ public:
 
 		return is_triconnected_;
 	}
-
+	
 	// overload is_triconnected
-	bool is_triconnected(){ 
+	bool is_triconnected()
+	{ 
 		std::vector< std::pair<int, int> > two_cut_vertices;
 		return is_triconnected(two_cut_vertices);
 	}
@@ -386,6 +397,7 @@ void Graph::removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove)
 
     matrix.conservativeResize(numRows,numCols);
 };
+
 void Graph::removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove)
 {
     unsigned int numRows = matrix.rows()-1;
