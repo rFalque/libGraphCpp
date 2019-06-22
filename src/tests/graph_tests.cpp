@@ -11,6 +11,8 @@
 #include <iostream>
 #include <limits>
 
+#include "gtest/gtest.h"
+
 #define IGL_VIEWER_VIEWER_QUIET
 
 #include "../graph_lib/graphStructure.hpp"
@@ -22,6 +24,7 @@
 
 int main(int argc, char* argv[])
 {
+    ::testing::InitGoogleTest(&argc, argv);
 
     options opts;
     opts.loadYAML("../tests_config.yaml");
@@ -43,6 +46,10 @@ int main(int argc, char* argv[])
         std::cout << "test connectivity for disconnected graph             [\033[1;31mFAILED\033[0m]\n";
     if (opts.visualization)
         graph->plot();
+
+    
+
+    EXPECT_EQ(graph->is_connected(), false);
 
     // connected graph
     graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
