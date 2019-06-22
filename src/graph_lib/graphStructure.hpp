@@ -1,11 +1,12 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include <algorithm>     // std::all_of
+#include <algorithm>           // std::all_of
 #include <Eigen/Dense>
 #include <limits>
 #include "readGraphOBJ.hpp"
 #include "plotGraph.hpp"
+#include "options.hpp"
 
 
 /* TODO: check adjacency_list
@@ -15,7 +16,7 @@
 class Graph
 {
 private:
-	bool verbose_ = true;                                               // enable/disable the couts
+    options opts_;                                                      // Store all visualization infos
 
 	// basic structure for edges and nodes
 	Eigen::MatrixXd nodes_;                                             // should be a N by 3 matrix of doubles
@@ -53,22 +54,24 @@ public:
 	// overloaded creations of the class (set verbose and load the data)
 	Graph(std::string file_name){
 		readGraphOBJ(file_name, nodes_, edges_);
+		set_default_options();
 	}
 
-	Graph(std::string file_name, bool verbose){
+	Graph(std::string file_name, options opts){
 		readGraphOBJ(file_name, nodes_, edges_);
-		verbose_ = verbose;
+		opts_ = opts;
 	}
 
 	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges){
 		nodes_ = nodes;
 		edges_ = edges;
+		set_default_options();
 	}
 
-	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, bool verbose){
+	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, options opts){
 		nodes_ = nodes;
 		edges_ = edges;
-		verbose_ = verbose;
+		opts_ = opts;
 	}
 
 	// destructor
@@ -102,6 +105,16 @@ public:
 		return true;
 	}
 
+	bool set_default_options()
+	{
+		opts_.verbose = true;
+		opts_.nodes_ratio = 50.0;
+		opts_.edges_ratio = 200.0;
+		opts_.graph_res = 30.0;
+		opts_.nodes_color = {1.0, 0.1, 0.1};
+		opts_.edges_color = {0.1, 0.1, 0.1};
+	}
+
 	void set_adjacency_lists()
 	{
 		// TODO: - the if statement should be removed for undirected graphs as they are not needed
@@ -128,7 +141,7 @@ public:
 
 	bool plot()
 	{
-		return directional::plot_graph(nodes_, edges_);
+		return plot_graph(nodes_, edges_, opts_);
 	}
 
 	bool augment_connectivity()
@@ -137,7 +150,8 @@ public:
 		return true;
 	}
 
-	int num_nodes(){
+	int num_nodes()
+	{
 		return num_nodes_;
 	}
 
@@ -145,7 +159,8 @@ public:
 		return num_edges_;
 	}
 
-	bool is_connected(){
+	bool is_connected()
+	{
 		if (is_connected_ == -1)
 		{
 			// check for graph connectivity using DFS:
@@ -153,7 +168,7 @@ public:
 			DFSUtil(0, adjacency_list_, visited);
 			is_connected_ = std::all_of(visited.begin(), visited.end(), [](bool v) { return v; });
 
-			if (verbose_)
+			if (opts_.verbose)
 				std::cout << "graph is connected: " << is_connected_ << std::endl;
 
 			// if not connected, update the next ones
@@ -187,7 +202,7 @@ public:
 			for (int i = 0; i < num_nodes_; i++) 
 				if (ap[i] == true) {
 					one_cut_vertices.push_back(i);
-					if (verbose_)
+					if (opts_.verbose)
 						std::cout << "Articulation point " << i << " at: "  << nodes_.row(i) << std::endl;
 				}
 			is_biconnected_ = std::none_of(ap.begin(), ap.end(), [](bool v) { return v; });
@@ -197,7 +212,7 @@ public:
 				is_triconnected_ = 0;
 		}
 
-		if (verbose_)
+		if (opts_.verbose)
 			std::cout << "graph is 2-connected: " << is_biconnected_ << std::endl;
 
 		return is_biconnected_;
@@ -220,11 +235,13 @@ public:
 		 * - http://www.ogdf.net/doku.php
 		 * - https://github.com/adrianN/Triconnectivity
 		 */
+		options opts = opts_;
+		opts.verbose = false;
 		if (is_triconnected_ == -1) {
 			is_triconnected_ = true;
 			for (int i=0; i<num_nodes_; i++) {
 				std::vector< int > one_cut_vertices;
-				Graph reduced_graph(nodes_, edges_, false);
+				Graph reduced_graph(nodes_, edges_, opts);
 				reduced_graph.init();
 				reduced_graph.remove_node(i);
 				bool reduced_graph_is_biconnected = reduced_graph.is_biconnected(one_cut_vertices);
@@ -240,7 +257,7 @@ public:
 
 		removeDuplicates(two_cut_vertices);
 
-		if (verbose_) {
+		if (opts_.verbose) {
 			std::cout << "graph is 3-connected: " << is_triconnected_ << std::endl;
 			for (int i = 0; i<two_cut_vertices.size(); i++)
 				std::cout << "two_cut_vertices between node " << two_cut_vertices[i].first <<" and node " << two_cut_vertices[i].second << std::endl;
@@ -257,7 +274,8 @@ public:
 	}
 
 	// return the set of bridges
-	bool has_bridges(std::vector< std::pair<int, int> > bridges){
+	bool has_bridges(std::vector< std::pair<int, int> > bridges)
+	{
 		if (has_bridges_ == -1) {
 			// check for bridges:
 
@@ -281,7 +299,7 @@ public:
 				has_bridges_ = 1;
 		}
 
-		if (verbose_)
+		if (opts_.verbose)
 			std::cout << "graph has bridges: " << has_bridges_ << std::endl;
 		
 		return has_bridges_;
@@ -382,6 +400,13 @@ public:
 		}
 		
 		return min_distance.at(target);
+	}
+
+	bool print_isolated_vertices()
+	{
+		for (int i=0; i<num_nodes_; i++)
+			if (adjacency_list_[i].size() == 0)
+				std::cout << "Isolated vertices at: " << i << std::endl;
 	}
 
 };
