@@ -13,18 +13,18 @@
 
 int main(int argc, char* argv[])
 {
-  options opts;
-  opts.loadYAML("../config.yaml");
+    options opts;
+    opts.loadYAML("../config.yaml");
 
-  Graph graph("../data/graphs_test/6_disconnected.obj", opts.verbose);
-  graph.init();
+    Graph graph(opts.path_graph_obj, opts);
+    graph.init();
 
-  bool is_connected, is_biconnected, is_triconnected;
-  is_connected = graph.is_connected();
-  is_biconnected = graph.is_biconnected();
-  is_triconnected = graph.is_triconnected();
-  
-  graph.plot();
+    bool is_connected, is_biconnected, is_triconnected;
+    is_connected = graph.is_connected();
+    is_biconnected = graph.is_biconnected();
+    is_triconnected = graph.is_triconnected();
 
-  return 0;
+    graph.plot();
+
+    return 0;
 }
