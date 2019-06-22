@@ -13,9 +13,6 @@
 
 #define IGL_VIEWER_VIEWER_QUIET
 
-#include <igl/readOBJ.h>
-#include <igl/opengl/glfw/Viewer.h>
-
 #include "../graph_lib/graphStructure.hpp"
 #include "../graph_lib/readGraphOBJ.hpp"
 #include "../graph_lib/plotGraph.hpp"
