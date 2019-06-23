@@ -79,3 +79,5 @@ target_link_libraries(${PROJECT_NAME}_bin
 			igl::opengl
 			igl::opengl_glfw
 			gtest_main)
+
+add_test(NAME example_test COMMAND example)

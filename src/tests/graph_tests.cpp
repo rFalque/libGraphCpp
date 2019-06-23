@@ -16,98 +16,114 @@
 #define IGL_VIEWER_VIEWER_QUIET
 
 #include "../graph_lib/graphStructure.hpp"
-#include "../graph_lib/readGraphOBJ.hpp"
-#include "../graph_lib/plotGraph.hpp"
 #include "../graph_lib/options.hpp"
 
 #include <yaml-cpp/yaml.h>
 
-int main(int argc, char* argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
 
+/*
+ * TEST GRAPH CONNECTIVITY
+ */
+TEST(graphConnectivity, disconnected)
+{
     options opts;
     opts.loadYAML("../tests_config.yaml");
-
-    /*
-     * TEST GRAPH CONNECTIVITY
-     */
-
-    std::cout << "Test the connectivity tests :\n";
 
     Graph * graph;
 
     // disconnected graph
     graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
     graph->init();
-    if (!graph->is_connected() && !graph->is_biconnected() && !graph->is_triconnected())
-        std::cout << "test connectivity for disconnected graph             [\033[1;32mPASSED\033[0m]\n";
-    else
-        std::cout << "test connectivity for disconnected graph             [\033[1;31mFAILED\033[0m]\n";
+    
+    EXPECT_EQ(graph->is_connected(), false);
+    EXPECT_EQ(graph->is_biconnected(), false);
+    EXPECT_EQ(graph->is_triconnected(), false);
     if (opts.visualization)
         graph->plot();
+}
 
-    
+TEST(graphConnectivity, connected)
+{
+    options opts;
+    opts.loadYAML("../tests_config.yaml");
 
-    EXPECT_EQ(graph->is_connected(), false);
+    Graph * graph;
 
     // connected graph
     graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
     graph->init();
-    if (graph->is_connected() && !graph->is_biconnected() && !graph->is_triconnected())
-        std::cout << "test connectivity for 1-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
-    else
-            std::cout << "test connectivity for 1-node-connected graph     [\033[1;31mFAILED\033[0m]\n";
+    
+    EXPECT_EQ(graph->is_connected(), true);
+    EXPECT_EQ(graph->is_biconnected(), false);
+    EXPECT_EQ(graph->is_triconnected(), false);
     if (opts.visualization)
         graph->plot();
+}
+
+TEST(graphConnectivity, biconnected)
+{
+    options opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Graph * graph;
 
     // biconnected graph
     graph = new Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts);
     graph->init();
-    if (graph->is_connected() && graph->is_biconnected() && !graph->is_triconnected())
-        std::cout << "test connectivity for 2-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
-    else
-        std::cout << "test connectivity for 2-node-connected graph         [\033[1;31mFAILED\033[0m]\n";
+    
+    EXPECT_EQ(graph->is_connected(), true);
+    EXPECT_EQ(graph->is_biconnected(), true);
+    EXPECT_EQ(graph->is_triconnected(), false);
     if (opts.visualization)
         graph->plot();
+}
+
+TEST(graphConnectivity, triconnected)
+{
+    options opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Graph * graph;
 
     // triconnected graph
     graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
     graph->init();
-    if (graph->is_connected() && graph->is_biconnected() && graph->is_triconnected())
-        std::cout << "test connectivity for 3-node-connected graph         [\033[1;32mPASSED\033[0m]\n";
-    else
-            std::cout << "test connectivity for 3-node-connected graph     [\033[1;31mFAILED\033[0m]\n";
+    
+    EXPECT_EQ(graph->is_connected(), true);
+    EXPECT_EQ(graph->is_biconnected(), true);
+    EXPECT_EQ(graph->is_triconnected(), true);
     if (opts.visualization)
         graph->plot();
-
-
-
-    /*
-     * TEST Dijkstra
-     */
-
-    // unreachable points (return inf)
-    std::cout << "\nTest Dijkstra's algorithm :\n";
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
-    graph->init();
-    if ( graph->dijkstra(0, 1) == std::numeric_limits<double>::infinity() )
-        std::cout << "test Dijkstra for disconnected graph                 [\033[1;32mPASSED\033[0m]\n";
-    else {
-        std::cout << "test Dijkstra for disconnected graph                 [\033[1;31mFAILED\033[0m]\n";
-        std::cout << "real distance: inf, distance found: " << graph->dijkstra(0, 1) << std::endl;
-    }
-
-    // reachable points (return exact dist)
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
-    graph->init();
-    if ( graph->dijkstra(0, 1) == 20 )
-        std::cout << "test Dijkstra for connected graph                    [\033[1;32mPASSED\033[0m]\n";
-    else {
-        std::cout << "test Dijkstra for connected graph                    [\033[1;31mFAILED\033[0m]\n";
-        std::cout << "real distance: 20, distance found: " << graph->dijkstra(0, 1) << std::endl;
-    }
-    
-    return 0;
 }
 
+
+/*
+ * TEST Dijkstra
+ */
+TEST(graphDikjstra, unreachable)
+{
+    options opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Graph * graph;
+    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
+    graph->init();
+
+    EXPECT_EQ(graph->dijkstra(0, 1), std::numeric_limits<double>::infinity());
+    if (opts.visualization)
+        graph->plot();
+}
+
+TEST(graphDikjstra, reachable)
+{
+    options opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Graph * graph;
+    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
+    graph->init();
+    
+    EXPECT_EQ(graph->dijkstra(0, 1), 20);
+    if (opts.visualization)
+        graph->plot();
+}

@@ -8,7 +8,7 @@ io_files:
   
 general_params:
   verbose: false         # enable / disable outputs (true / false)
-  visualization: true   # enable / disable visualizations (true / false)
+  visualization: false   # enable / disable visualizations (true / false)
 
 visualization_params:
   nodes_ratio: 50.0
