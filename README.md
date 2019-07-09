@@ -28,7 +28,9 @@ make
 ## Features:
 * graph instanciation from Eigen matrices ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
 * graph visualization (using [libigl](https://github.com/libigl/libigl) and few headers from [directional](https://github.com/avaxman/Directional))
-* removing nodes
+* adding\removing nodes
+* edge collapsing
+* transformation into 1D curve
 * connectivity (linear time)
 * biconnectivity (linear time)
 * triconnectivity (quadratic time)
@@ -37,7 +39,6 @@ make
 
 ## Features to add:
 * graph augmentation
-* add nodes
 
 ## Design principles:
 * header only library
