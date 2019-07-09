@@ -64,7 +64,7 @@ inline bool add_graph (igl::opengl::glfw::Viewer & viewer,
     viewer.data().set_mesh(edges_V, edges_T);
     viewer.data().set_colors(edges_C);
     viewer.data().show_lines = false;
-    viewer.core.background_color << 1, 1, 1, 1;
+    viewer.core().background_color << 1, 1, 1, 1;
 
     return true;
 };

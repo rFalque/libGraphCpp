@@ -1,14 +1,14 @@
 /*
-*   Greedy Search
-*   by R. Falque
-*   29/11/2018
-*/
+ *   return min/max/scale
+ *   by R. Falque
+ *   29/11/2018
+ */
 
 #ifndef GETMINMAX_HPP
 #define GETMINMAX_HPP
 
 #include <Eigen/Core>
-#include <limits> 
+#include <limits>
 
 inline void getMinMax(Eigen::MatrixXd in_cloud, Eigen::Vector3d & min_point, Eigen::Vector3d & max_point){
     min_point << std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity();
