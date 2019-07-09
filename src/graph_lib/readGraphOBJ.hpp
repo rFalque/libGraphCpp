@@ -13,7 +13,8 @@
 
 #include <Eigen/Core>
 #include <vector>
-#include <igl/list_to_matrix.h>
+#include "EigenTools.hpp"
+//#include <igl/list_to_matrix.h>
 
 #include <string>
 #include <cstdio>
@@ -115,8 +116,8 @@ bool readGraphOBJ(const std::string obj_file_name, Eigen::MatrixXd & V_out, Eige
   }
   fclose(obj_file);
 
-  igl::list_to_matrix(V, V_out);
-  igl::list_to_matrix(E, E_out);
+  list_to_matrix(V, V_out);
+  list_to_matrix(E, E_out);
 
   E_out = E_out - Eigen::MatrixXi::Constant(E_out.rows(),2,1);
 
