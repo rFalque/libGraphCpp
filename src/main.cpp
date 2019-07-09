@@ -26,5 +26,9 @@ int main(int argc, char* argv[])
 
     graph.plot();
 
+    std::cout << "Make the graph one dimentional:\n";
+    graph.make_1D_curve();
+    graph.plot();
+
     return 0;
 }
