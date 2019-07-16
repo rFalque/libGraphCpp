@@ -41,9 +41,9 @@ private:
 	int has_bridges_ = -1;                                              // 0 no, 1 yes, -1 undefined
 
 	// storing of the cut sets
-	std::vector< int > one_cut_vertices_;                               // set of articulation points
-	std::vector< std::pair<int, int> > two_cut_vertices_;               // set of two-cut vertices
-	std::vector< std::pair<int, int> > bridges_;                        // set of briges
+	std::vector< int > one_cut_vertices_;                               // set of articulation points : vector of nodes ids
+	std::vector< std::pair<int, int> > two_cut_vertices_;               // set of two-cut vertices    : vector of nodes ids pair
+	std::vector<int> bridges_;                                          // set of briges              : vector of edges ids
 	
 	// internal functions used iteratively (defined at the bottom of the file)
 	void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
@@ -51,7 +51,7 @@ private:
 	void removeDuplicates(std::vector<std::pair<int, int>>& v);
 	void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
 	void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
-	void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector< std::pair<int, int> > & bridges);
+	void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
 	bool is_element_in_vector(int a, std::vector<int> & A, int & element_position);
 
 public:
@@ -264,18 +264,9 @@ public:
 
 			// list all non bridges
 			std::vector <int> edges_to_edit;
-			for (int i=0; i<num_edges_; i++) {
-				bool edge_to_add = true;
-				for (int j=0; j<bridges_.size(); j++) {
-					if ( (edges_(i, 0)==bridges_[j].first && edges_(i, 1)==bridges_[j].second) || 
-					     (edges_(i, 1)==bridges_[j].first && edges_(i, 0)==bridges_[j].second) ) {
-						edge_to_add = false;
-						break;
-					}
-				}
-				if (edge_to_add)
+			for (int i=0; i<num_edges_; i++)
+				if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end())
 					edges_to_edit.push_back(i);
-			}
 
 			collapse_edge(edges_to_edit[0]);
 
@@ -459,7 +450,7 @@ public:
 	}
 
 	// return the set of bridges
-	bool has_bridges(std::vector< std::pair<int, int> > bridges)
+	bool has_bridges(std::vector< int > bridges)
 	{
 		if (has_bridges_ == -1) {
 			// check for bridges:
@@ -495,7 +486,7 @@ public:
 	// overload has_bridges
 	bool has_bridges()
 	{
-		std::vector< std::pair<int, int> > bridges;
+		std::vector< int > bridges;
 		return has_bridges(bridges);
 	}
 
@@ -656,7 +647,7 @@ void Graph::bridgeUtil(int u,
 					   int disc[], 
 					   int low[], 
 					   std::vector<int> & parent, 
-					   std::vector< std::pair<int, int> > & bridges) 
+					   std::vector<int> & bridges) 
 { 
     // A static variable is used for simplicity, we can  
     // avoid use of static variable by passing a pointer. 
@@ -670,18 +661,23 @@ void Graph::bridgeUtil(int u,
   
     // Go through all vertices aadjacent to this 
     for (int i=0; i<adjacency_list_[u].size(); i++) { 
-		int v = adjacency_list_[u][i];  // v is current adjacent of u 
-  
+		
+		int v = adjacency_list_[u][i];
+
         // If v is not visited yet, then recur for it 
         if (!visited[v]) { 
-            parent[v] = u; 
+            parent[v] = u;
+
             bridgeUtil(v, visited, disc, low, parent, bridges); 
   
             // Check if the subtree rooted with v has a  
             // connection to one of the ancestors of u 
             low[u]  = std::min(low[u], low[v]); 
   
-			bridges.push_back(std::make_pair(u, v));
+			if (low[v] > disc[u]) {
+				bridges.push_back(adjacency_edge_list_[u][i]);
+			}
+				
 
             // If the lowest vertex reachable from subtree  
             // under v is  below u in DFS tree, then u-v  
@@ -693,8 +689,9 @@ void Graph::bridgeUtil(int u,
         // Update low value of u for parent function calls. 
         else if (v != parent[u]) 
             low[u]  = std::min(low[u], disc[v]); 
-    } 
+    }
 };
+
 
 bool Graph::is_element_in_vector(int a, std::vector<int> & A, int & element_position)
 {
