@@ -14,7 +14,7 @@ find_path(LIBIGL_INCLUDE_DIR igl/readOBJ.h
         ENV LIBIGL_ROOT
         ENV LIBIGL_DIR
     PATHS
-        /home/ubuntu/libigl
+        ~/libigl
         ${CMAKE_SOURCE_DIR}/../..
         ${CMAKE_SOURCE_DIR}/..
         ${CMAKE_SOURCE_DIR}
