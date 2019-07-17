@@ -6,7 +6,7 @@
 #include <limits>
 #include "readGraphOBJ.hpp"
 #include "plotGraph.hpp"
-#include "options.hpp"
+#include "graphOptions.hpp"
 
 
 /* TODO: check adjacency_list
@@ -21,7 +21,7 @@
 class Graph
 {
 private:
-    options opts_;                                                      // Store all visualization infos
+    graphOptions opts_;                                                      // Store all visualization infos
 
 	// basic structure for edges and nodes
 	Eigen::MatrixXd nodes_;                                             // should be a N by 3 matrix of doubles
@@ -63,7 +63,7 @@ public:
 		set_default_options();
 	}
 
-	Graph(std::string file_name, options opts)
+	Graph(std::string file_name, graphOptions opts)
 	{
 		readGraphOBJ(file_name, nodes_, edges_);
 		opts_ = opts;
@@ -76,7 +76,7 @@ public:
 		set_default_options();
 	}
 
-	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, options opts)
+	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts)
 	{
 		nodes_ = nodes;
 		edges_ = edges;
@@ -445,7 +445,7 @@ public:
 		 * - http://www.ogdf.net/doku.php
 		 * - https://github.com/adrianN/Triconnectivity
 		 */
-		options opts = opts_;
+		graphOptions opts = opts_;
 		opts.verbose = false;
 		if (is_triconnected_ == -1) {
 			is_triconnected_ = true;

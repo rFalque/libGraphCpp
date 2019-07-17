@@ -1,11 +1,11 @@
-#ifndef OPTIONS_HPP
-#define OPTIONS_HPP
+#ifndef GRAPH_OPTIONS_HPP
+#define GRAPH_OPTIONS_HPP
 
 #include <string>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
-struct options
+struct graphOptions
 {
     // path to the graph to load
     std::string path_graph_obj;
