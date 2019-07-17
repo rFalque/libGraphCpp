@@ -62,6 +62,8 @@ option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"            ON)
 find_package(LIBIGL REQUIRED QUIET)
 #find_package(OpenGL REQUIRED)
 
+include_directories(../include)
+
 file(GLOB SRCFILES *.cpp)
 
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})

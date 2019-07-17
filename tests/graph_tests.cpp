@@ -15,8 +15,8 @@
 
 #define IGL_VIEWER_VIEWER_QUIET
 
-#include "../graph_lib/graphStructure.hpp"
-#include "../graph_lib/options.hpp"
+#include "libGraphCpp/graph.hpp"
+#include "libGraphCpp/graphOptions.hpp"
 
 #include <yaml-cpp/yaml.h>
 
@@ -26,7 +26,7 @@
  */
 TEST(graphConnectivity, disconnected)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;
@@ -44,7 +44,7 @@ TEST(graphConnectivity, disconnected)
 
 TEST(graphConnectivity, connected)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;
@@ -62,7 +62,7 @@ TEST(graphConnectivity, connected)
 
 TEST(graphConnectivity, biconnected)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;
@@ -80,7 +80,7 @@ TEST(graphConnectivity, biconnected)
 
 TEST(graphConnectivity, triconnected)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;
@@ -102,7 +102,7 @@ TEST(graphConnectivity, triconnected)
  */
 TEST(graphDikjstra, unreachable)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;
@@ -116,7 +116,7 @@ TEST(graphDikjstra, unreachable)
 
 TEST(graphDikjstra, reachable)
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
     Graph * graph;

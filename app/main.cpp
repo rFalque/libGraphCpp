@@ -4,16 +4,16 @@
  * 22/06/2019
  **/
 
-#include "libGraphCpp/graphStructure.hpp"
+#include "libGraphCpp/graph.hpp"
 #include "libGraphCpp/readGraphOBJ.hpp"
 #include "libGraphCpp/plotGraph.hpp"
-#include "libGraphCpp/options.hpp"
+#include "libGraphCpp/graphOptions.hpp"
 
 #include <yaml-cpp/yaml.h>
 
 int main(int argc, char* argv[])
 {
-    options opts;
+    graphOptions opts;
     opts.loadYAML("../config.yaml");
 
     Graph graph(opts.path_graph_obj, opts);
