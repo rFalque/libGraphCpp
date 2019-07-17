@@ -4,8 +4,8 @@
  *   29/11/2018
  */
 
-#ifndef GETMINMAX_HPP
-#define GETMINMAX_HPP
+#ifndef GET_MIN_MAX_HPP
+#define GET_MIN_MAX_HPP
 
 #include <Eigen/Core>
 
