@@ -153,6 +153,40 @@ public:
 		return plot_graph(nodes_, edges_, opts_);
 	}
 
+
+	bool plot_and_highlight(std::vector<int> node_list, std::vector<int> edge_list)
+	{
+		// set default_values 
+		Eigen::MatrixXd nodes_colors = Eigen::MatrixXd::Constant(nodes_.rows(),3,0.1);
+		nodes_colors.col(0) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 1.0);
+		nodes_colors.col(1) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 0.1);
+		nodes_colors.col(2) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 0.1);
+
+		Eigen::MatrixXd edges_colors = Eigen::MatrixXd::Constant(edges_.rows(),3,0.1);
+		edges_colors.col(0) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
+		edges_colors.col(1) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
+		edges_colors.col(2) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
+
+		for (int node: node_list) {
+			nodes_colors(node, 0) = 0.1;
+			nodes_colors(node, 2) = 1.0;
+		}
+
+		for (int edge: edge_list) {
+			edges_colors(edge, 0) = 0.1;
+			edges_colors(edge, 2) = 1.0;
+		}
+
+		double scale;
+    	getScale(nodes_, scale);
+
+    	double nodes_radius = scale/opts_.nodes_ratio;
+    	double edges_radius = scale/opts_.edges_ratio;
+
+	    return plot_graph (nodes_, edges_,nodes_colors, edges_colors, nodes_radius, edges_radius, opts_.graph_res);
+	}
+
+
 	bool print_isolated_vertices()
 	{
 		for (int i=0; i<num_nodes_; i++)
@@ -357,7 +391,7 @@ public:
 	}
 
 	// return the set of one cut vertices
-	bool is_biconnected(std::vector< int >& one_cut_vertices)
+	bool is_biconnected(std::vector<int>& one_cut_vertices)
 	{
 		if (is_biconnected_ == -1) {
 			// check for 2 node connectivity:
@@ -450,7 +484,7 @@ public:
 	}
 
 	// return the set of bridges
-	bool has_bridges(std::vector< int > bridges)
+	bool has_bridges(std::vector<int>& bridges)
 	{
 		if (has_bridges_ == -1) {
 			// check for bridges:
@@ -486,7 +520,7 @@ public:
 	// overload has_bridges
 	bool has_bridges()
 	{
-		std::vector< int > bridges;
+		std::vector<int> bridges;
 		return has_bridges(bridges);
 	}
 

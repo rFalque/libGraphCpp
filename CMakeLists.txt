@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(libgraph)
+project(libGraphCpp)
 
 add_subdirectory(external_library)
 
@@ -22,7 +22,11 @@ option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"  ON)
 find_package(LIBIGL REQUIRED QUIET)
 #find_package(OpenGL REQUIRED)
 
-file(GLOB SRCFILES *.cpp)
+include_directories(include)
+
+file(GLOB SRCFILES app/*.cpp)
+
+#set(LIBGRAPHCPP ${PROJECT_SOURCE_DIR}/include/)
 
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 
