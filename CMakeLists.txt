@@ -26,8 +26,6 @@ include_directories(include)
 
 file(GLOB SRCFILES app/*.cpp)
 
-#set(LIBGRAPHCPP ${PROJECT_SOURCE_DIR}/include/)
-
 add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 
 set_target_properties(${PROJECT_NAME}_bin PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
@@ -42,3 +40,16 @@ target_link_libraries(${PROJECT_NAME}_bin
 			igl::core
 			igl::opengl
 			igl::opengl_glfw)
+
+
+
+set(INCLUDE_INSTALL_ROOT_DIR include)
+set(INCLUDE_INSTALL_DIR ${INCLUDE_INSTALL_ROOT_DIR}/libGraphCpp)
+set(header_directory "include/libGraphCpp/")
+
+#install(TARGETS libGraphCpp EXPORT libGraphCpp-targets ${_INSTALL_DESTINATIONS})
+install(
+	DIRECTORY ${header_directory}
+	DESTINATION ${INCLUDE_INSTALL_DIR}
+	FILES_MATCHING PATTERN "*.hpp"
+)
