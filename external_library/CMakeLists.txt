@@ -1,6 +1,6 @@
+include(ExternalProject)
 
-include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
-
+# yaml-cpp stuff
 set(CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
     -DYAML_CPP_BUILD_TOOLS:BOOL=OFF
@@ -9,7 +9,7 @@ set(CMAKE_ARGS
 LIST(APPEND CMAKE_ARGS -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
 
 ExternalProject_Add(yaml-cpp 
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp"
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
     PREFIX yaml-cpp
     CMAKE_ARGS ${CMAKE_ARGS})
 
