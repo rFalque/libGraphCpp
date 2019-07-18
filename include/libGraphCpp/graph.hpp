@@ -33,6 +33,7 @@ private:
 	std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
 	std::vector< std::vector<int> > adjacency_edge_list_;               // contains for each nodes, its edges neighbors
 	Eigen::VectorXd edges_length_;                                      // used only for Dijkstra
+	Eigen::MatrixXi adjacency_matrix_;
 
 	// connectivity properties
 	int is_connected_ = -1;                                             // 0 no, 1 yes, -1 undefined
@@ -69,18 +70,51 @@ public:
 		opts_ = opts;
 	}
 
-	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges)
+	Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges)
 	{
 		nodes_ = nodes;
 		edges_ = edges;
 		set_default_options();
 	}
 
-	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts)
+	Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges, graphOptions opts)
 	{
 		nodes_ = nodes;
 		edges_ = edges;
 		opts_ = opts;
+	}
+
+	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi adjacency_matrix)
+	{
+		if (adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()) {
+			std::cout << "Error: wrong input size when assessing adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
+			std::exit(0);
+		}
+		if (adjacency_matrix.transpose() != adjacency_matrix)
+		{
+			std::cout << "Error: the adjacency_matrix should be symmetric\n ";
+			std::exit(0);
+		}
+
+		nodes_ = nodes;
+		Eigen::MatrixXi edges((adjacency_matrix.array() != 0).count(), 2);
+
+		// explore the upper triangle of the adjacency_matrix (without the diagonal)
+		int num_edges = 0;
+		for (int i=0; i<adjacency_matrix.rows(); i++)
+			for (int j=i+1; j<adjacency_matrix.cols(); j++) {
+				if (adjacency_matrix(i,j) != 0)
+				{
+					edges(num_edges, 0) = i;
+					edges(num_edges, 1) = j;
+					num_edges ++;
+				}
+			}
+		edges.conservativeResize(num_edges, 2);
+
+		edges_ = edges;
+		adjacency_matrix_  = adjacency_matrix;
+		set_default_options();
 	}
 
 	// destructor
@@ -177,8 +211,7 @@ public:
 			edges_colors(edge, 2) = 1.0;
 		}
 
-		double scale;
-    	getScale(nodes_, scale);
+		double scale = (nodes_.colwise().maxCoeff() - nodes_.colwise().minCoeff()).norm();
 
     	double nodes_radius = scale/opts_.nodes_ratio;
     	double edges_radius = scale/opts_.edges_ratio;
@@ -284,8 +317,12 @@ public:
 	}
 
 	// this could be improve by using the list of cycles and collapsing the smallest edge in each cycle
-	bool make_1D_curve()
+	std::vector<std::vector <int> > make_1D_curve()
 	{
+		std::vector<std::vector <int> > nodes_references(num_nodes_);
+		for (int i=0; i<num_nodes_; i++)
+			nodes_references[i].push_back(i);
+
 		bool verbose_temp = opts_.verbose;
 		opts_.verbose = false;
 
@@ -310,7 +347,13 @@ public:
 		}
 
 		opts_.verbose = verbose_temp;
-		return true;
+		return nodes_references;
+	}
+
+	bool transform (double scale, Eigen::Vector3d move) 
+	{
+		nodes_ /= scale;
+		nodes_ += move.transpose();
 	}
 
 	double dijkstra(int source, int target) 

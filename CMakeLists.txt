@@ -42,12 +42,11 @@ target_link_libraries(${PROJECT_NAME}_bin
 			igl::opengl_glfw)
 
 
-
+# add install instructions
 set(INCLUDE_INSTALL_ROOT_DIR include)
 set(INCLUDE_INSTALL_DIR ${INCLUDE_INSTALL_ROOT_DIR}/libGraphCpp)
 set(header_directory "include/libGraphCpp/")
 
-#install(TARGETS libGraphCpp EXPORT libGraphCpp-targets ${_INSTALL_DESTINATIONS})
 install(
 	DIRECTORY ${header_directory}
 	DESTINATION ${INCLUDE_INSTALL_DIR}

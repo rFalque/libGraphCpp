@@ -4,6 +4,11 @@
 *                  vertices are noted "v"
 *   
 *   this file is scavenged from the readOBJ file of libIGL
+*   the modifications are:
+*    - remove the faces and add edge loading
+*    - remove dependencies to exterior files (libIGL)
+*    - change the #define tag
+* 
 *   by R. Falque
 *   10/05/2019
 */
@@ -13,8 +18,6 @@
 
 #include <Eigen/Core>
 #include <vector>
-#include "EigenTools.hpp"
-//#include <igl/list_to_matrix.h>
 
 #include <string>
 #include <cstdio>
@@ -116,9 +119,34 @@ bool readGraphOBJ(const std::string obj_file_name, Eigen::MatrixXd & V_out, Eige
   }
   fclose(obj_file);
 
-  list_to_matrix(V, V_out);
-  list_to_matrix(E, E_out);
+  int num_vertices = V.size();
+  int num_edges = E.size();
+  V_out.resize(num_vertices, 3);
+  E_out.resize(num_edges, 2);
+  
+  for(int i = 0;i<num_vertices;i++)
+  {
+    if (V[i].size() != 3) {
+      std::cout << "Error in readGraphOBJ.hpp: wrong input dimension\n";
+      exit(0);
+    }
 
+    for(int j = 0;j<3;j++)
+      V_out(i,j) = V[i][j];
+  }
+
+  for(int i = 0;i<num_edges;i++)
+  {
+    if (E[i].size() != 2) {
+      std::cout << "Error in readGraphOBJ.hpp: wrong input dimension\n";
+      exit(0);
+    }
+
+    for(int j = 0;j<2;j++)
+      E_out(i,j) = E[i][j];
+  }
+
+  // remove one for 0 index references
   E_out = E_out - Eigen::MatrixXi::Constant(E_out.rows(),2,1);
 
   return true;

@@ -19,10 +19,7 @@
 #include <Eigen/Core>
 #include <igl/opengl/glfw/Viewer.h>
 
-#include "getMinMax.hpp"
 #include "graphOptions.hpp"
-
-
 
 // From: https://github.com/avaxman/Directional
 namespace directional
@@ -213,8 +210,7 @@ inline bool add_graph (igl::opengl::glfw::Viewer & viewer,
     edges_colors.col(1) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[1]);
     edges_colors.col(2) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[2]);
 
-    double scale;
-    getScale(nodes, scale);
+    double scale = (nodes.colwise().maxCoeff() - nodes.colwise().minCoeff()).norm();
 
     double nodes_radius = scale/opts.nodes_ratio;
     double edges_radius = scale/opts.edges_ratio;
@@ -254,8 +250,7 @@ inline bool plot_graph (const Eigen::MatrixXd & nodes,
     edges_colors.col(1) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[1]);
     edges_colors.col(2) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[2]);
 
-    double scale;
-    getScale(nodes, scale);
+    double scale = (nodes.colwise().maxCoeff() - nodes.colwise().minCoeff()).norm();
 
     double nodes_radius = scale/opts.nodes_ratio;
     double edges_radius = scale/opts.edges_ratio;
@@ -272,8 +267,7 @@ inline bool plot_graph (const Eigen::MatrixXd & nodes,
     edges_colors = Eigen::MatrixXd::Constant(edges.rows(),3,0.1);
     nodes_colors.col(0) = Eigen::MatrixXd::Constant(nodes.rows(),1,1);
 
-    double scale;
-    getScale(nodes, scale);
+    double scale = (nodes.colwise().maxCoeff() - nodes.colwise().minCoeff()).norm();
 
     double nodes_radius = scale/50;
     double edges_radius = scale/200;
