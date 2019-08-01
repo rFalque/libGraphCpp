@@ -23,3 +23,21 @@ add_dependencies(yaml-cpp-lib yaml-cpp)
 
 set(YAML_CPP_LIBRARIES "yaml-cpp-lib" CACHE INTERNAL "")
 set(YAML_CPP_INCLUDE_DIR "${install_dir}/include" CACHE INTERNAL "")
+
+
+#ExternalProject_Add(poliscope 
+#    GIT_REPOSITORY https://github.com/nmwsharp/polyscope
+#    PREFIX poliscope
+#    INSTALL ""
+#    )
+#
+#ExternalProject_Get_Property(poliscope install_dir)
+#
+#add_library(poliscope-lib STATIC IMPORTED GLOBAL)
+#set_target_properties(poliscope-lib PROPERTIES IMPORTED_LOCATION
+#    "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}poliscope${CMAKE_STATIC_LIBRARY_SUFFIX}")
+#
+#add_dependencies(poliscope-lib poliscope)
+#
+#set(POLISCOPE_LIBRARIES "polyscope-lib" CACHE INTERNAL "")
+#set(POLISCOPE_INCLUDE_DIR "${install_dir}/include" CACHE INTERNAL "")

@@ -17,9 +17,15 @@
 #define PLOT_GRAPH_HPP
 
 #include <Eigen/Core>
-#include <igl/opengl/glfw/Viewer.h>
+//#include <igl/opengl/glfw/Viewer.h>
 
 #include "graphOptions.hpp"
+
+
+#include "polyscope/polyscope.h"
+#include "polyscope/messages.h"
+#include "polyscope/point_cloud.h"
+#include "polyscope/surface_mesh.h"
 
 // From: https://github.com/avaxman/Directional
 namespace directional
@@ -148,7 +154,7 @@ namespace directional
 }
 
 
-
+/*
 inline bool add_graph (igl::opengl::glfw::Viewer & viewer,
                         const Eigen::MatrixXd & nodes,
                         const Eigen::MatrixXi & edges,
@@ -275,6 +281,101 @@ inline bool plot_graph (const Eigen::MatrixXd & nodes,
 
     return plot_graph (nodes, edges,nodes_colors, edges_colors, nodes_radius, edges_radius, res);
 };
+*/
+inline bool plot_polyscope(const Eigen::MatrixXd & nodes,
+                           const Eigen::MatrixXi & edges,
+                           graphOptions opts)
+{
+
+    int res = 10;
+
+    Eigen::MatrixXd nodes_colors, edges_colors;
+
+    nodes_colors = Eigen::MatrixXd::Constant(nodes.rows(),3,0.1);
+    nodes_colors.col(0) = Eigen::MatrixXd::Constant(nodes.rows(),1, opts.nodes_color[0]);
+    nodes_colors.col(1) = Eigen::MatrixXd::Constant(nodes.rows(),1, opts.nodes_color[1]);
+    nodes_colors.col(2) = Eigen::MatrixXd::Constant(nodes.rows(),1, opts.nodes_color[2]);
+
+    edges_colors = Eigen::MatrixXd::Constant(edges.rows(),3,0.1);
+    edges_colors.col(0) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[0]);
+    edges_colors.col(1) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[1]);
+    edges_colors.col(2) = Eigen::MatrixXd::Constant(edges.rows(),1,opts.edges_color[2]);
+
+    double scale = (nodes.colwise().maxCoeff() - nodes.colwise().minCoeff()).norm();
+
+    double nodes_radius = scale/opts.nodes_ratio;
+    double edges_radius = scale/opts.edges_ratio;
+
+
+    Eigen::MatrixXd edges_begin, edges_end;
+    Eigen::MatrixXi cols;
+    cols.resize(1,3);
+    cols << 0,1,2;
+
+    edges_begin.resize(edges.rows(), 3);
+    edges_end.resize(edges.rows(), 3);
+
+    for(int i=0;i<edges.rows(); i++)
+    {
+        edges_begin.row(i) << nodes.row(edges(i,0));
+        edges_end.row(i) << nodes.row(edges(i,1));
+    }
+
+    Eigen::MatrixXd nodes_V, edges_V, concatenated_V;
+    Eigen::MatrixXi nodes_F, edges_F, concatenated_F;
+    Eigen::MatrixXd nodes_C, edges_C, concatenated_C;
+
+    directional::point_spheres(nodes, nodes_radius, nodes_colors, res, nodes_V, nodes_F, nodes_C);
+    directional::line_cylinders(edges_begin, edges_end, edges_radius, edges_colors, res, edges_V, edges_F, edges_C);
+
+    concatenated_V.resize(nodes_V.rows() + edges_V.rows(), 3);
+    concatenated_V << nodes_V, edges_V;
+    concatenated_F.resize(nodes_F.rows() + edges_F.rows(), 3);
+    //for (int i=0; i<edges_F.rows(); i++)
+    //{
+    //    edges_F(i, 0) += nodes_F.rows();
+    //    edges_F(i, 1) += nodes_F.rows();
+    //    edges_F(i, 2) += nodes_F.rows();
+    //}
+
+    //edges_F += Eigen::MatrixXi::Constant(edges_F.rows(), 3, nodes_F.rows());
+    concatenated_F << nodes_F, edges_F;
+
+
+    // Options
+    //polyscope::options::autocenterStructures = true;
+    polyscope::view::windowWidth = 1024;
+    polyscope::view::windowHeight = 1024;
+
+    // Initialize polyscope
+    polyscope::init();
+
+    std::vector<glm::vec3> points;
+
+    // generate points
+    for (size_t i = 0; i < nodes.rows(); i++) {
+    points.push_back(
+        glm::vec3{nodes(i,0), nodes(i,1), nodes(i,2)});
+    }
+
+
+    // Register the mesh with Polyscope
+    //polyscope::registerSurfaceMesh("nodes", nodes_V, nodes_F);
+    polyscope::registerPointCloud("nodes", points);
+    Eigen::MatrixXi F(edges.rows(), 3);
+
+    F.col(0) = edges.col(0);
+    F.col(1) = edges.col(1);
+    F.col(2) = edges.col(0);
+
+    polyscope::registerSurfaceMesh("edges", edges_V, edges_F);
+    //polyscope::registerSurfaceMesh("edges", nodes, F);
+
+    // Show the gui
+    polyscope::show();
+
+    return true;
+}
 
 
 #endif
