@@ -185,7 +185,7 @@ public:
 	}
 
 	bool plot() {
-		return plot_polyscope(nodes_, edges_, opts_);
+		return plot_graph(nodes_, edges_, opts_);
 	}
 
 
@@ -217,7 +217,7 @@ public:
     	double nodes_radius = scale/opts_.nodes_ratio;
     	double edges_radius = scale/opts_.edges_ratio;
 
-		//plot_graph (nodes_, edges_,nodes_colors, edges_colors, nodes_radius, edges_radius, opts_.graph_res)
+		plot_graph (nodes_, edges_,nodes_colors, edges_colors, nodes_radius, edges_radius, opts_.graph_res)
 
 	    return true;
 	}
@@ -580,7 +580,7 @@ public:
 	{
 		return edges_;
 	}
-	
+
 	/* TO BE REMOVED? */
 	int adj(int i, int j)
 	{
