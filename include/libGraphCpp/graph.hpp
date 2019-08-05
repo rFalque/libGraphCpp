@@ -95,6 +95,8 @@ namespace libgraphcpp
 				adjacency_matrix = edges_input;
 
 				if (adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()) {
+					std::cout << "size of the nodes matrix: " << nodes.rows() << ", " << nodes.cols() << "\n";
+					std::cout << "size of the edges matrix: " << edges_input.rows() << ", " << edges_input.cols() << "\n";
 					std::cout << "Error: wrong input size when assessing adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
 					std::exit(0);
 				}
