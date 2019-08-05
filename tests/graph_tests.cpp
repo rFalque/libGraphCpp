@@ -29,10 +29,10 @@ TEST(graphConnectivity, disconnected)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
+    libgraphcpp::Graph * graph;
 
     // disconnected graph
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
+    graph = new libgraphcpp::Graph("../data/graphs_test/6_disconnected.obj", opts);
     graph->init();
     
     EXPECT_EQ(graph->is_connected(), false);
@@ -47,10 +47,10 @@ TEST(graphConnectivity, connected)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
+    libgraphcpp::Graph * graph;
 
     // connected graph
-    graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
+    graph = new libgraphcpp::Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
     graph->init();
     
     EXPECT_EQ(graph->is_connected(), true);
@@ -65,10 +65,10 @@ TEST(graphConnectivity, biconnected)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
+    libgraphcpp::Graph * graph;
 
     // biconnected graph
-    graph = new Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts);
+    graph = new libgraphcpp::Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts);
     graph->init();
     
     EXPECT_EQ(graph->is_connected(), true);
@@ -83,10 +83,10 @@ TEST(graphConnectivity, triconnected)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
+    libgraphcpp::Graph * graph;
 
     // triconnected graph
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
+    graph = new libgraphcpp::Graph("../data/graphs_test/0_graph_complete.obj", opts);
     graph->init();
     
     EXPECT_EQ(graph->is_connected(), true);
@@ -105,8 +105,8 @@ TEST(graphDikjstra, unreachable)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
+    libgraphcpp::Graph * graph;
+    graph = new libgraphcpp::Graph("../data/graphs_test/6_disconnected.obj", opts);
     graph->init();
 
     EXPECT_EQ(graph->dijkstra(0, 1), std::numeric_limits<double>::infinity());
@@ -119,8 +119,8 @@ TEST(graphDikjstra, reachable)
     graphOptions opts;
     opts.loadYAML("../tests_config.yaml");
 
-    Graph * graph;
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
+    libgraphcpp::Graph * graph;
+    graph = new libgraphcpp::Graph("../data/graphs_test/0_graph_complete.obj", opts);
     graph->init();
     
     EXPECT_EQ(graph->dijkstra(0, 1), 20);

@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     graphOptions opts;
     opts.loadYAML("../config.yaml");
 
-    Graph graph(opts.path_graph_obj, opts);
+    libgraphcpp::Graph graph(opts.path_graph_obj, opts);
     graph.init();
 
     bool is_connected, is_biconnected, is_triconnected, has_bridges;
