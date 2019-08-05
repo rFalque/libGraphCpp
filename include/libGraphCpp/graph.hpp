@@ -83,7 +83,7 @@ namespace libgraphcpp
 		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges_input)
 		{
 			// test if edges is m by 2 (explicit edges) or n by n (adjacency matrix)
-			if ( edges_input.rows() == 2 )
+			if ( edges_input.cols() == 2 )
 			{
 				nodes_ = nodes;
 				edges_ = edges_input;
