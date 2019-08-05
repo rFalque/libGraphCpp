@@ -73,13 +73,6 @@ namespace libgraphcpp
 			opts_ = opts;
 		}
 
-		Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges)
-		{
-			nodes_ = nodes;
-			edges_ = edges;
-			set_default_options();
-		}
-
 		Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges, graphOptions opts)
 		{
 			nodes_ = nodes;
@@ -87,37 +80,50 @@ namespace libgraphcpp
 			opts_ = opts;
 		}
 
-		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi adjacency_matrix)
+		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges_input)
 		{
-			if (adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()) {
-				std::cout << "Error: wrong input size when assessing adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
-				std::exit(0);
-			}
-			if (adjacency_matrix.transpose() != adjacency_matrix)
+			// test if edges is m by 2 (explicit edges) or n by n (adjacency matrix)
+			if ( edges_input.rows() == 2 )
 			{
-				std::cout << "Error: the adjacency_matrix should be symmetric\n ";
-				std::exit(0);
+				nodes_ = nodes;
+				edges_ = edges_input;
+				set_default_options();
 			}
+			else
+			{
+				Eigen::MatrixXi adjacency_matrix;
+				adjacency_matrix = edges_input;
 
-			nodes_ = nodes;
-			Eigen::MatrixXi edges((adjacency_matrix.array() != 0).count(), 2);
-
-			// explore the upper triangle of the adjacency_matrix (without the diagonal)
-			int num_edges = 0;
-			for (int i=0; i<adjacency_matrix.rows(); i++)
-				for (int j=i+1; j<adjacency_matrix.cols(); j++) {
-					if (adjacency_matrix(i,j) != 0)
-					{
-						edges(num_edges, 0) = i;
-						edges(num_edges, 1) = j;
-						num_edges ++;
-					}
+				if (adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()) {
+					std::cout << "Error: wrong input size when assessing adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
+					std::exit(0);
 				}
-			edges.conservativeResize(num_edges, 2);
+				if (adjacency_matrix.transpose() != adjacency_matrix)
+				{
+					std::cout << "Error: the adjacency_matrix should be symmetric\n ";
+					std::exit(0);
+				}
 
-			edges_ = edges;
-			adjacency_matrix_  = adjacency_matrix;
-			set_default_options();
+				nodes_ = nodes;
+				Eigen::MatrixXi edges((adjacency_matrix.array() != 0).count(), 2);
+
+				// explore the upper triangle of the adjacency_matrix (without the diagonal)
+				int num_edges = 0;
+				for (int i=0; i<adjacency_matrix.rows(); i++)
+					for (int j=i+1; j<adjacency_matrix.cols(); j++) {
+						if (adjacency_matrix(i,j) != 0)
+						{
+							edges(num_edges, 0) = i;
+							edges(num_edges, 1) = j;
+							num_edges ++;
+						}
+					}
+				edges.conservativeResize(num_edges, 2);
+
+				edges_ = edges;
+				adjacency_matrix_  = adjacency_matrix;
+				set_default_options();
+			}
 		}
 
 		// destructor
