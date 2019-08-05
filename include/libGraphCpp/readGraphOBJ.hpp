@@ -29,7 +29,7 @@
 
 namespace libgraphcpp
 {
-  bool readGraphOBJ(const std::string obj_file_name, Eigen::MatrixXd & V_out, Eigen::MatrixXi & E_out){
+  inline bool readGraphOBJ(const std::string obj_file_name, Eigen::MatrixXd & V_out, Eigen::MatrixXi & E_out){
     bool verbose = false;
 
     std::vector<std::vector<double > > V;

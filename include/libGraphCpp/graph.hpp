@@ -50,13 +50,13 @@ namespace libgraphcpp
 		std::vector<int> bridges_;                                          // set of briges              : vector of edges ids
 		
 		// internal functions used iteratively (defined at the bottom of the file)
-		void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
-		void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
-		void removeDuplicates(std::vector<std::pair<int, int>>& v);
-		void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
-		void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
-		void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
-		bool is_element_in_vector(int a, std::vector<int> & A, int & element_position);
+		inline void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
+		inline void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
+		inline void removeDuplicates(std::vector<std::pair<int, int>>& v);
+		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
+		inline void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
+		inline void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
+		inline bool is_element_in_vector(int a, std::vector<int> & A, int & element_position);
 
 	public:
 
