@@ -56,7 +56,7 @@ namespace libgraphcpp
 		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
 		inline void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
 		inline void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
-		inline bool is_element_in_vector(int a, std::vector<int> & A, int & element_position);
+		inline bool is_element_in_vector(int a, std::vector<int> & A);
 
 	public:
 
@@ -64,13 +64,16 @@ namespace libgraphcpp
 		Graph(std::string file_name)
 		{
 			readGraphOBJ(file_name, nodes_, edges_);
-			set_default_options();
+
+			init();
 		}
 
 		Graph(std::string file_name, graphOptions opts)
 		{
 			readGraphOBJ(file_name, nodes_, edges_);
 			opts_ = opts;
+
+			init();
 		}
 
 		Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges, graphOptions opts)
@@ -78,6 +81,8 @@ namespace libgraphcpp
 			nodes_ = nodes;
 			edges_ = edges;
 			opts_ = opts;
+
+			init();
 		}
 
 		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges_input)
@@ -87,7 +92,6 @@ namespace libgraphcpp
 			{
 				nodes_ = nodes;
 				edges_ = edges_input;
-				set_default_options();
 			}
 			else
 			{
@@ -124,8 +128,9 @@ namespace libgraphcpp
 
 				edges_ = edges;
 				adjacency_matrix_  = adjacency_matrix;
-				set_default_options();
 			}
+
+			init();
 		}
 
 		// destructor
@@ -159,17 +164,7 @@ namespace libgraphcpp
 
 			return true;
 		}
-
-		bool set_default_options()
-		{
-			opts_.verbose = false;
-			opts_.nodes_ratio = 50.0;
-			opts_.edges_ratio = 200.0;
-			opts_.graph_res = 30.0;
-			opts_.nodes_color = {1.0, 0.1, 0.1};
-			opts_.edges_color = {0.1, 0.1, 0.1};
-		}
-
+		
 		void set_adjacency_lists()
 		{
 			// TODO: - the if statement should be removed for undirected graphs as they are not needed
@@ -382,18 +377,18 @@ namespace libgraphcpp
 
 			// initialize the node to start from
 			int u = source;
-			int element_position;
 
 			// start searching
 			bool target_found;
+
 			while (!target_found)
 			{
 				for (int i = 0; i < adjacency_list_.at(u).size(); ++i)
 				{
 					int neighbour_node = adjacency_list_.at(u).at(i);
 					double edge_length = edges_length_(adjacency_edge_list_.at(u).at(i));
-					if (not is_element_in_vector(neighbour_node, to_visit, element_position))
-						if (not is_element_in_vector(neighbour_node, visited, element_position))
+					if (not is_element_in_vector(neighbour_node, to_visit))
+						if (not is_element_in_vector(neighbour_node, visited))
 							to_visit.push_back(neighbour_node);
 					
 					if ( min_distance.at(u) + edge_length < min_distance.at( neighbour_node ) )
@@ -403,7 +398,7 @@ namespace libgraphcpp
 				visited.push_back(u);
 
 				// check if the visited point is in sub_V
-				target_found = is_element_in_vector(target, visited, element_position);
+				target_found = is_element_in_vector(target, visited);
 
 				// set next u
 				int index_of_next_point = 0;
@@ -792,19 +787,13 @@ namespace libgraphcpp
 		}
 	};
 
-
-	bool Graph::is_element_in_vector(int a, std::vector<int> & A, int & element_position)
+	
+	bool Graph::is_element_in_vector(int a, std::vector<int> & A)
 	{
-		bool point_is_in_set = false;
-
-		for (int i = 0; i < A.size(); ++i)
-			if ( a == A.at(i) ) {
-				element_position = i;
-				point_is_in_set = true;
-			}
-
-		return point_is_in_set;
+		auto it = std::find(A.begin(), A.end(), a);
+		return it != A.end();
 	}
+
 
 }
 

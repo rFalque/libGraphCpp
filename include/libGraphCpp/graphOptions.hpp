@@ -11,15 +11,15 @@ struct graphOptions
     std::string path_graph_obj;
 
     // general options
-    bool visualization;
-    bool verbose;
+    bool visualization = false;
+    bool verbose = false;
 
     // visualization parameters
-    double nodes_ratio;
-    double edges_ratio;
-    double graph_res;
-    std::vector<double> nodes_color;
-    std::vector<double> edges_color;
+    double nodes_ratio = 50.0;
+    double edges_ratio = 200.0;
+    double graph_res = 10.0;
+    std::vector<double> nodes_color = {1.0, 0.1, 0.1};
+    std::vector<double> edges_color = {0.1, 0.1, 0.1};
 
     void print(){
         std::cout << "list of the parameters:" << std::endl;
