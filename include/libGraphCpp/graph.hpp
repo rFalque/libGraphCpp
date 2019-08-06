@@ -60,7 +60,6 @@ namespace libgraphcpp
 
 	public:
 
-		// overloaded creations of the class (set verbose and load the data)
 		Graph(std::string file_name)
 		{
 			readGraphOBJ(file_name, nodes_, edges_);
@@ -68,21 +67,9 @@ namespace libgraphcpp
 			init();
 		}
 
-		Graph(std::string file_name, graphOptions opts)
-		{
-			readGraphOBJ(file_name, nodes_, edges_);
+		// overload with options
+		Graph(std::string file_name, graphOptions opts) : Graph(file_name) {
 			opts_ = opts;
-
-			init();
-		}
-
-		Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges, graphOptions opts)
-		{
-			nodes_ = nodes;
-			edges_ = edges;
-			opts_ = opts;
-
-			init();
 		}
 
 		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges_input)
@@ -133,6 +120,11 @@ namespace libgraphcpp
 			init();
 		}
 
+		// overload with options
+		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts) : Graph(nodes, edges) {
+			opts_ = opts;
+		}
+
 		// destructor
 		~Graph()
 		{
@@ -164,7 +156,7 @@ namespace libgraphcpp
 
 			return true;
 		}
-		
+
 		void set_adjacency_lists()
 		{
 			// TODO: - the if statement should be removed for undirected graphs as they are not needed
