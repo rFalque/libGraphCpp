@@ -64,8 +64,8 @@ public:
   // === Member functions ===
 
   // Construct a new surface mesh structure
-  template <class V, class F>
-  SurfaceMesh(std::string name, const V& vertexPositions, const F& faceIndices);
+  SurfaceMesh(std::string name, const std::vector<glm::vec3>& vertexPositions,
+              const std::vector<std::vector<size_t>>& faceIndices);
 
   // Build the imgui display
   virtual void buildCustomUI() override;
@@ -124,7 +124,11 @@ public:
   template <class T>
   SurfaceVertexVectorQuantity* addVertexVectorQuantity(std::string name, const T& vectors, VectorType vectorType = VectorType::STANDARD);
   template <class T>
+  SurfaceVertexVectorQuantity* addVertexVectorQuantity2D(std::string name, const T& vectors, VectorType vectorType = VectorType::STANDARD);
+  template <class T>
   SurfaceFaceVectorQuantity* addFaceVectorQuantity(std::string name, const T& vectors, VectorType vectorType = VectorType::STANDARD);
+  template <class T>
+  SurfaceFaceVectorQuantity* addFaceVectorQuantity2D(std::string name, const T& vectors, VectorType vectorType = VectorType::STANDARD);
   template <class T>
   SurfaceFaceIntrinsicVectorQuantity* addFaceIntrinsicVectorQuantity(std::string name, const T& vectors, int nSym = 1, VectorType vectorType = VectorType::STANDARD);
   template <class T>
@@ -144,6 +148,12 @@ public:
   // = Misc quantities
   template <class P, class E>
   SurfaceGraphQuantity* addSurfaceGraphQuantity(std::string name, const P& nodes, const E& edges);
+  template <class P, class E>
+  SurfaceGraphQuantity* addSurfaceGraphQuantity2D(std::string name, const P& nodes, const E& edges);
+  template <class P>
+  SurfaceGraphQuantity* addSurfaceGraphQuantity(std::string name, const std::vector<P>& paths);
+  template <class P>
+  SurfaceGraphQuantity* addSurfaceGraphQuantity2D(std::string name, const std::vector<P>& paths);
 
   // = I/O Selections
   template <class T>
@@ -154,7 +164,7 @@ public:
 
 
   // === Make a one-time selection
-  // size_t selectVertex();
+  long long int selectVertex();
   // size_t selectFace();
 
   // === Mutate
@@ -240,7 +250,21 @@ public:
   void ensureHaveFaceTangentSpaces();
   void ensureHaveVertexTangentSpaces();
 
-  // TODO templated functions to set tangent spaces
+  // Set tangent space coordinates for vertices
+  template <class T>
+  void setVertexTangentBasisX(const T& vectors);
+  template <class T>
+  void setVertexTangentBasisX2D(const T& vectors);
+
+  // Set tangent space coordinates for faces
+  template <class T>
+  void setFaceTangentBasisX(const T& vectors);
+  template <class T>
+  void setFaceTangentBasisX2D(const T& vectors);
+
+
+  // Set tangent space coordinates for faces
+
 
   // === Member variables ===
   static const std::string structureTypeName;
@@ -251,16 +275,19 @@ public:
 
   // Returns the face ands coordinates in that face of the last pick. fOut == FacePtr() if not in any face. Note that
   // you may needed to update the pick data, beacuse this uses mouse coordinates from the current state but possibly
-  // old pick lookup results. void getPickedFacePoint(FacePtr& fOut, glm::vec3& baryCoordOut);
+  // old pick lookup results.
+  // void getPickedFacePoint(FacePtr& fOut, glm::vec3& baryCoordOut);
 
-private:
   // Visualization settings
   glm::vec3 baseColor;
   glm::vec3 surfaceColor;
   glm::vec3 edgeColor{0., 0., 0.};
-  ShadeStyle shadeStyle = ShadeStyle::FLAT;
-  bool showEdges = false;
   float edgeWidth = 0.0;
+
+private:
+  
+  // Visualization settings
+  ShadeStyle shadeStyle = ShadeStyle::FLAT;
 
   // Do setup work related to drawing, including allocating openGL data
   void prepare();
@@ -297,8 +324,10 @@ private:
   // bool screenSpaceTriangleTest(size_t fInd, glm::vec2 testCoords, glm::vec3& bCoordOut);
 
 
-  // === Quantity adders
   // clang-format off
+  
+  // === Quantity adders
+
   SurfaceVertexColorQuantity* addVertexColorQuantityImpl(std::string name, const std::vector<glm::vec3>& colors);
   SurfaceFaceColorQuantity* addFaceColorQuantityImpl(std::string name, const std::vector<glm::vec3>& colors);
   SurfaceVertexCountQuantity* addVertexCountQuantityImpl(std::string name, const std::vector<std::pair<size_t, int>>& values);
@@ -314,88 +343,33 @@ private:
   SurfaceFaceScalarQuantity* addFaceScalarQuantityImpl(std::string name, const std::vector<double>& data, DataType type); 
   SurfaceEdgeScalarQuantity* addEdgeScalarQuantityImpl(std::string name, const std::vector<double>& data, DataType type); 
   SurfaceHalfedgeScalarQuantity* addHalfedgeScalarQuantityImpl(std::string name, const std::vector<double>& data, DataType type);
-
   SurfaceVertexVectorQuantity* addVertexVectorQuantityImpl(std::string name, const std::vector<glm::vec3>& vectors, VectorType vectorType);
   SurfaceFaceVectorQuantity* addFaceVectorQuantityImpl(std::string name, const std::vector<glm::vec3>& vectors, VectorType vectorType);
   SurfaceFaceIntrinsicVectorQuantity* addFaceIntrinsicVectorQuantityImpl(std::string name, const std::vector<glm::vec2>& vectors, int nSym, VectorType vectorType);
   SurfaceVertexIntrinsicVectorQuantity* addVertexIntrinsicVectorQuantityImpl(std::string name, const std::vector<glm::vec2>& vectors, int nSym, VectorType vectorType);
   SurfaceOneFormIntrinsicVectorQuantity* addOneFormIntrinsicVectorQuantityImpl(std::string name, const std::vector<double>& data, const std::vector<char>& orientations);
 
+  // === Helper implementations
 
+  void setVertexTangentBasisXImpl(const std::vector<glm::vec3>& vectors);
+  void setFaceTangentBasisXImpl(const std::vector<glm::vec3>& vectors);
   // clang-format on
 };
 
-
-// ==== Implementations of template functions
-
-
-// Shorthand to add a mesh to polyscope
+// Register functions
 template <class V, class F>
 SurfaceMesh* registerSurfaceMesh(std::string name, const V& vertexPositions, const F& faceIndices,
-                                 bool replaceIfPresent = true) {
-  SurfaceMesh* s = new SurfaceMesh(name, vertexPositions, faceIndices);
-  bool success = registerStructure(s);
-  if (!success) {
-    safeDelete(s);
-  }
-
-  return s;
-}
-
-// Shorthand to add a mesh to polyscope while also setting permutations
+                                 bool replaceIfPresent = true);
+template <class V, class F>
+SurfaceMesh* registerSurfaceMesh2D(std::string name, const V& vertexPositions, const F& faceIndices,
+                                   bool replaceIfPresent = true);
 template <class V, class F, class P>
 SurfaceMesh* registerSurfaceMesh(std::string name, const V& vertexPositions, const F& faceIndices,
-                                 const std::array<std::pair<P, size_t>, 5>& perms, bool replaceIfPresent = true) {
-
-  SurfaceMesh* s = registerSurfaceMesh(name, vertexPositions, faceIndices, replaceIfPresent);
-
-  if (s) {
-    s->setAllPermutations(perms);
-  }
-
-  return s;
-}
-
+                                 const std::array<std::pair<P, size_t>, 5>& perms, bool replaceIfPresent = true);
 
 // Shorthand to get a mesh from polyscope
-inline SurfaceMesh* getSurfaceMesh(std::string name = "") {
-  return dynamic_cast<SurfaceMesh*>(getStructure(SurfaceMesh::structureTypeName, name));
-}
+inline SurfaceMesh* getSurfaceMesh(std::string name = "");
 
-
-// Implementation of templated constructor
-template <class V, class F>
-SurfaceMesh::SurfaceMesh(std::string name, const V& vertexPositions, const F& faceIndices)
-    : QuantityStructure<SurfaceMesh>(name), vertices(standardizeVectorArray<glm::vec3, 3>(vertexPositions)),
-      faces(standardizeNestedList<size_t, F>(faceIndices)) {
-
-  computeCounts();
-  computeGeometryData();
-
-  // Colors
-  baseColor = getNextUniqueColor();
-  surfaceColor = baseColor;
-}
-
-// Make mesh element type printable
-inline std::string getMeshElementTypeName(MeshElement type) {
-  switch (type) {
-  case MeshElement::VERTEX:
-    return "vertex";
-  case MeshElement::FACE:
-    return "face";
-  case MeshElement::EDGE:
-    return "edge";
-  case MeshElement::HALFEDGE:
-    return "halfedge";
-  case MeshElement::CORNER:
-    return "corner";
-  }
-  throw std::runtime_error("broken");
-}
-inline std::ostream& operator<<(std::ostream& out, const MeshElement value) {
-  return out << getMeshElementTypeName(value);
-}
 
 } // namespace polyscope
 

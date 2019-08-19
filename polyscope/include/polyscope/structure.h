@@ -37,10 +37,10 @@ public:
 
   // == Build the ImGUI ui elements
   void buildUI();
-  virtual void buildCustomUI() = 0;        // overridden by childen to add custom UI data
-  virtual void buildCustomOptionsUI() = 0; // overridden by childen to add to the options menu
-  virtual void buildQuantitiesUI();        // build quantities, if they exist. Overridden by QuantityStructure.
-  virtual void buildSharedStructureUI();   // Draw any UI elements shared between all instances of the structure
+  virtual void buildCustomUI() = 0;      // overridden by childen to add custom UI data
+  virtual void buildCustomOptionsUI();   // overridden by childen to add to the options menu
+  virtual void buildQuantitiesUI();      // build quantities, if they exist. Overridden by QuantityStructure.
+  virtual void buildSharedStructureUI(); // Draw any UI elements shared between all instances of the structure
   virtual void buildPickUI(size_t localPickID) = 0; // Draw pick UI elements when index localPickID is selected
 
   // = Identifying data
@@ -94,7 +94,7 @@ public:
   // = Manage quantities
 
   // Note: takes ownership of pointer after it is passed in
-  void addQuantity(QuantityType* q, bool allowReplacement = false);
+  void addQuantity(QuantityType* q, bool allowReplacement = true);
 
   QuantityType* getQuantity(std::string name);
   void removeQuantity(std::string name);

@@ -24,6 +24,20 @@ namespace polyscope {
 // Initialize statics
 const std::string SurfaceMesh::structureTypeName = "Surface Mesh";
 
+// Implementation of constructor
+SurfaceMesh::SurfaceMesh(std::string name, const std::vector<glm::vec3>& vertexPositions,
+                         const std::vector<std::vector<size_t>>& faceIndices)
+    : QuantityStructure<SurfaceMesh>(name), vertices(vertexPositions), faces(faceIndices) {
+
+  computeCounts();
+  computeGeometryData();
+
+  // Colors
+  baseColor = getNextUniqueColor();
+  surfaceColor = baseColor;
+}
+
+
 void SurfaceMesh::computeCounts() {
 
   nFacesTriangulationCount = 0;
@@ -95,8 +109,7 @@ void SurfaceMesh::computeGeometryData() {
 
     glm::vec3 fN = zero;
     double fA = 0;
-    // if (face.size() == 3) {
-    if (true) {
+    if (face.size() == 3) {
       glm::vec3 pA = vertices[face[0]];
       glm::vec3 pB = vertices[face[1]];
       glm::vec3 pC = vertices[face[2]];
@@ -892,23 +905,16 @@ std::tuple<glm::vec3, glm::vec3> SurfaceMesh::boundingBox() {
 
 std::string SurfaceMesh::typeName() { return structureTypeName; }
 
-/* TODO resurrect
-VertexPtr SurfaceMesh::selectVertex() {
+long long int SurfaceMesh::selectVertex() {
 
   // Make sure we can see edges
-  edgeWidth = 0.01;
-  enabled = true;
+  edgeWidth = 1.;
+  this->setEnabled(true);
 
-  // Create a new context
-  ImGuiContext* oldContext = ImGui::GetCurrentContext();
-  ImGuiContext* newContext = ImGui::CreateContext(getGlobalFontAtlas());
-  ImGui::SetCurrentContext(newContext);
-  initializeImGUIContext();
-  VertexPtr returnVert;
-  int iV = 0;
+  long long int returnVertInd = -1;
 
   // Register the callback which creates the UI and does the hard work
-  focusedPopupUI = [&]() {
+  auto focusedPopupUI = [&]() {
     { // Create a window with instruction and a close button.
       static bool showWindow = true;
       ImGui::SetNextWindowSize(ImVec2(300, 0), ImGuiCond_Once);
@@ -918,67 +924,61 @@ VertexPtr SurfaceMesh::selectVertex() {
       ImGui::TextUnformatted("Hold ctrl and left-click to select a vertex");
       ImGui::Separator();
 
-      // Pick by number
+      // Choose by number
       ImGui::PushItemWidth(300);
+      static int iV = -1;
       ImGui::InputInt("index", &iV);
       if (ImGui::Button("Select by index")) {
-        if (iV >= 0 && (size_t)iV < mesh->nVertices()) {
-          returnVert = mesh->vertex(iV);
-          focusedPopupUI = nullptr;
+        if (iV >= 0 && (size_t)iV < nVertices()) {
+          returnVertInd = iV;
+          popContext();
         }
       }
       ImGui::PopItemWidth();
 
       ImGui::Separator();
       if (ImGui::Button("Abort")) {
-        focusedPopupUI = nullptr;
+        popContext();
       }
+
+      ImGui::End();
     }
 
     ImGuiIO& io = ImGui::GetIO();
     if (io.KeyCtrl && !io.WantCaptureMouse && ImGui::IsMouseClicked(0)) {
       if (pick::pickIsFromThisFrame) {
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        // TODO fix semi-broken picking...
+        // API is a giant mess..
         size_t pickInd;
+        ImVec2 p = ImGui::GetMousePos();
+        pick::evaluatePickQuery(io.DisplayFramebufferScale.x * p.x, io.DisplayFramebufferScale.y * p.y);
         Structure* pickS = pick::getCurrentPickElement(pickInd);
 
         if (pickS == this) {
-          VertexPtr v;
-          EdgePtr e;
-          FacePtr f;
-          HalfedgePtr he;
-          getPickedElement(pickInd, v, f, e, he);
 
-          if (v != VertexPtr()) {
-            returnVert = v;
-            focusedPopupUI = nullptr;
+          if (pickInd < nVertices()) {
+            returnVertInd = pickInd;
+            popContext();
           }
         }
       }
     }
-
-    ImGui::End();
   };
 
+  // Pass control to the context we just created
+  pushContext(focusedPopupUI);
 
-  // Re-enter main loop
-  while (focusedPopupUI) {
-    mainLoopIteration();
-  }
-
-  // Restore the old context
-  ImGui::SetCurrentContext(oldContext);
-  ImGui::DestroyContext(newContext);
-
-  if (returnVert == VertexPtr()) return returnVert;
-
-  return transfer.vMapBack[returnVert];
+  return returnVertInd;
 }
 
-
+/*
 FacePtr SurfaceMesh::selectFace() {
 
   // Make sure we can see edges
-  edgeWidth = 0.01;
+  edgeWidth = 1.;
   enabled = true;
 
   // Create a new context
@@ -1119,7 +1119,8 @@ SurfaceDistanceQuantity* SurfaceMesh::addVertexDistanceQuantityImpl(std::string 
   return q;
 }
 
-SurfaceDistanceQuantity* SurfaceMesh::addVertexSignedDistanceQuantityImpl(std::string name, const std::vector<double>& data) {
+SurfaceDistanceQuantity* SurfaceMesh::addVertexSignedDistanceQuantityImpl(std::string name,
+                                                                          const std::vector<double>& data) {
   SurfaceDistanceQuantity* q = new SurfaceDistanceQuantity(name, applyPermutation(data, vertexPerm), *this, true);
   addQuantity(q);
   return q;
@@ -1244,5 +1245,48 @@ SurfaceMesh::addOneFormIntrinsicVectorQuantityImpl(std::string name, const std::
   addQuantity(q);
   return q;
 }
+
+void SurfaceMesh::setVertexTangentBasisXImpl(const std::vector<glm::vec3>& vectors) {
+
+  std::vector<glm::vec3> inputBasisX = applyPermutation(vectors, vertexPerm);
+  vertexTangentSpaces.resize(nVertices());
+
+  for (size_t iV = 0; iV < nVertices(); iV++) {
+
+    glm::vec3 basisX = inputBasisX[iV];
+    glm::vec3 normal = vertexNormals[iV];
+
+    // Project in to tangent defined by our normals
+    basisX = glm::normalize(basisX - normal * glm::dot(normal, basisX));
+
+    // Let basis Y complete the frame
+    glm::vec3 basisY = glm::cross(normal, basisX);
+
+    vertexTangentSpaces[iV][0] = basisX;
+    vertexTangentSpaces[iV][1] = basisY;
+  }
+}
+
+void SurfaceMesh::setFaceTangentBasisXImpl(const std::vector<glm::vec3>& vectors) {
+
+  std::vector<glm::vec3> inputBasisX = applyPermutation(vectors, facePerm);
+  faceTangentSpaces.resize(nFaces());
+
+  for (size_t iF = 0; iF < nFaces(); iF++) {
+
+    glm::vec3 basisX = inputBasisX[iF];
+    glm::vec3 normal = faceNormals[iF];
+
+    // Project in to tangent defined by our normals
+    basisX = glm::normalize(basisX - normal * glm::dot(normal, basisX));
+
+    // Let basis Y complete the frame
+    glm::vec3 basisY = glm::cross(normal, basisX);
+
+    faceTangentSpaces[iF][0] = basisX;
+    faceTangentSpaces[iF][1] = basisY;
+  }
+}
+
 
 } // namespace polyscope
