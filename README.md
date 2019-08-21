@@ -1,11 +1,11 @@
 # Light C++ graph library
 
-We provide a simple and light graph library for visualizing and analyzing graph structures. The library builds upon [Libigl](https://github.com/libigl/libigl), following its design principle and adapt it for graphs. The graphs are stored as `.obj` files (not all other formats support edges) which can be easily edited in [Blender](https://www.blender.org/). 
+We provide a simple and light graph library for visualizing and analyzing graph structures. The library is inspired by [Libigl](https://github.com/libigl/libigl), following its design principle and applied for graphs. The graphs are stored as `.obj` files (not all other formats support edges) which can be easily edited in [Blender](https://www.blender.org/).
 
 ![Graph visualization](./images/graph_library.png "light C++ graph library")
 
 ## Installation:
-Install [libigl](https://github.com/libigl/libigl) and [Eigen](https://eigen.tuxfamily.org/) which are dependencies. Depending on how Libigl has been installed, you might need to update the location of the library in the `src/cmake/FindLIBIGL.cmake` file.
+Install [Eigen](https://eigen.tuxfamily.org/) which is a dependency.
 
 Then simply type the following commands in the command line:
 
@@ -27,7 +27,7 @@ make
 
 ## Features:
 * graph instanciation from Eigen matrices ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
-* graph visualization (using [libigl](https://github.com/libigl/libigl) and few headers from [directional](https://github.com/avaxman/Directional))
+* graph visualization (using [polyscope](http://polyscope.run/)
 * adding\removing nodes
 * edge collapsing
 * transformation into 1D curve
@@ -46,7 +46,7 @@ make
 * easy to modify
 
 ## Graph visualization:
-![Graph visualization](./images/graph_libigl_viewer.png "Graph visualization with libigl")
+![Graph visualization](./images/graph_polyscope_viewer.png "Graph visualization with libigl")
 
 ## Graph editing:
 Open [Blender](https://www.blender.org/) and start creating a graph. A mesh can be easily transformed into a graph by deleting the faces only (change to `edit mode`, select everything `a`, open the delete menu `del`, pick `Only faces`). See this [cheatsheet](https://bcgiu.wordpress.com/2015/02/12/best-blender-key-map-infographic/) for a complete key map.
