@@ -56,5 +56,5 @@ include_directories(${PROJECT_NAME}_bin
 
 target_link_libraries(${PROJECT_NAME}_bin 
 			polyscope
-            yaml-cpp
+			yaml-cpp
 			)
