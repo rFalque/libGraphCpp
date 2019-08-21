@@ -31,7 +31,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ### add subdirectories
 add_subdirectory(external_library)
-add_subdirectory(external_library/polyscope)
 
 ### CMAKE settings
 set(CMAKE_BUILD_TYPE Release)
@@ -59,4 +58,5 @@ include_directories(${PROJECT_NAME}_bin
 target_link_libraries(${PROJECT_NAME}_bin 
 			${YAML_CPP_LIBRARIES}
 			polyscope
+            yaml-cpp
 			)

@@ -1,4 +1,8 @@
+[submodule "external_library/yaml-cpp"]
+	path = external_library/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+	branch = master
 [submodule "external_library/polyscope"]
 	path = external_library/polyscope
-  url = https://github.com/nmwsharp/polyscope.git
+    url = https://github.com/nmwsharp/polyscope.git
 	branch = master
