@@ -1,9 +1,7 @@
 /**
- * Author: R. Falque
- * 
- * main for testing the embedded deformation implementation
+ * main for testing the graphs
  * by R. Falque
- * 14/11/2018
+ * 20/08/2019
  **/
 
 // dependencies
@@ -11,14 +9,132 @@
 #include <iostream>
 #include <limits>
 
-#include "gtest/gtest.h"
+#include <Eigen/Core>
 
-#define IGL_VIEWER_VIEWER_QUIET
+#include "gtest/gtest.h"
 
 #include "libGraphCpp/graph.hpp"
 #include "libGraphCpp/graphOptions.hpp"
 
 #include <yaml-cpp/yaml.h>
+
+/*
+ * TEST CONSTRUCTORS
+ */
+TEST(constructors, string)
+{
+    libgraphcpp::Graph graph("../data/graphs_test/0_graph_complete.obj");
+
+    EXPECT_EQ(graph.num_nodes(), 36);
+    EXPECT_EQ(graph.num_edges(), 68);
+}
+
+TEST(constructors, stringAndOpts)
+{
+    graphOptions opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    libgraphcpp::Graph graph("../data/graphs_test/0_graph_complete.obj", opts);
+
+    EXPECT_EQ(graph.num_nodes(), 36);
+    EXPECT_EQ(graph.num_edges(), 68);
+}
+
+TEST(constructors, edgeList)
+{
+    Eigen::MatrixXd nodes;
+    nodes.resize(5, 3);
+    nodes << 1, 2, 3,
+             4, 5, 6,
+             1, 8, 9,
+             2, 8, 9,
+             3, 8, 9;
+
+    Eigen::MatrixXi edges;
+    edges.resize(4, 2);
+    edges << 0, 1,
+             1, 2,
+             2, 3,
+             3, 4;
+
+    libgraphcpp::Graph graph(nodes, edges);
+
+    EXPECT_EQ(graph.num_nodes(), 5);
+    EXPECT_EQ(graph.num_edges(), 4);
+}
+
+TEST(constructors, edgeListAndOpts)
+{
+    graphOptions opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Eigen::MatrixXd nodes;
+    nodes.resize(5, 3);
+    nodes << 1, 2, 3,
+             4, 5, 6,
+             1, 8, 9,
+             2, 8, 9,
+             3, 8, 9;
+
+    Eigen::MatrixXi edges;
+    edges.resize(4, 2);
+    edges << 0, 1,
+             0, 2,
+             0, 3,
+             0, 4;
+
+    libgraphcpp::Graph graph(nodes, edges, opts);
+
+    EXPECT_EQ(graph.num_nodes(), 5);
+    EXPECT_EQ(graph.num_edges(), 4);
+}
+
+TEST(constructors, adjacencyMatrix)
+{
+    Eigen::MatrixXd nodes;
+    nodes.resize(4, 3);
+    nodes << 1, 2, 3,
+             4, 5, 6,
+             1, 8, 9,
+             2, 8, 9;
+
+    Eigen::MatrixXi edges;
+    edges.resize(4, 4);
+    edges << 0, 1, 0, 1,
+             1, 0, 0, 1,
+             0, 0, 0, 1,
+             1, 1, 1, 0;
+
+    libgraphcpp::Graph graph(nodes, edges);
+
+    EXPECT_EQ(graph.num_nodes(), 4);
+    EXPECT_EQ(graph.num_edges(), 4);
+}
+
+TEST(constructors, adjacencyMatrixAndOpts)
+{
+    graphOptions opts;
+    opts.loadYAML("../tests_config.yaml");
+
+    Eigen::MatrixXd nodes;
+    nodes.resize(4, 3);
+    nodes << 1, 2, 3,
+             4, 5, 6,
+             1, 8, 9,
+             2, 8, 9;
+
+    Eigen::MatrixXi edges;
+    edges.resize(4, 4);
+    edges << 0, 1, 0, 1,
+             1, 0, 0, 1,
+             0, 0, 0, 1,
+             1, 1, 1, 0;
+
+    libgraphcpp::Graph graph(nodes, edges, opts);
+
+    EXPECT_EQ(graph.num_nodes(), 4);
+    EXPECT_EQ(graph.num_edges(), 4);
+}
 
 
 /*
@@ -26,74 +142,38 @@
  */
 TEST(graphConnectivity, disconnected)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
+    libgraphcpp::Graph graph("../data/graphs_test/6_disconnected.obj");
 
-    Graph * graph;
-
-    // disconnected graph
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
-    graph->init();
-    
-    EXPECT_EQ(graph->is_connected(), false);
-    EXPECT_EQ(graph->is_biconnected(), false);
-    EXPECT_EQ(graph->is_triconnected(), false);
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.is_connected(), false);
+    EXPECT_EQ(graph.is_biconnected(), false);
+    EXPECT_EQ(graph.is_triconnected(), false);
 }
 
 TEST(graphConnectivity, connected)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
-
-    Graph * graph;
-
-    // connected graph
-    graph = new Graph("../data/graphs_test/3_1_node_connectetivity.obj", opts);
-    graph->init();
+    libgraphcpp::Graph graph("../data/graphs_test/3_1_node_connectetivity.obj");
     
-    EXPECT_EQ(graph->is_connected(), true);
-    EXPECT_EQ(graph->is_biconnected(), false);
-    EXPECT_EQ(graph->is_triconnected(), false);
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.is_connected(), true);
+    EXPECT_EQ(graph.is_biconnected(), false);
+    EXPECT_EQ(graph.is_triconnected(), false);
 }
 
 TEST(graphConnectivity, biconnected)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
+    libgraphcpp::Graph graph("../data/graphs_test/5_2_edge_connectetivity.obj");
 
-    Graph * graph;
-
-    // biconnected graph
-    graph = new Graph("../data/graphs_test/5_2_edge_connectetivity.obj", opts);
-    graph->init();
-    
-    EXPECT_EQ(graph->is_connected(), true);
-    EXPECT_EQ(graph->is_biconnected(), true);
-    EXPECT_EQ(graph->is_triconnected(), false);
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.is_connected(), true);
+    EXPECT_EQ(graph.is_biconnected(), true);
+    EXPECT_EQ(graph.is_triconnected(), false);
 }
 
 TEST(graphConnectivity, triconnected)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
+    libgraphcpp::Graph graph("../data/graphs_test/0_graph_complete.obj");
 
-    Graph * graph;
-
-    // triconnected graph
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
-    graph->init();
-    
-    EXPECT_EQ(graph->is_connected(), true);
-    EXPECT_EQ(graph->is_biconnected(), true);
-    EXPECT_EQ(graph->is_triconnected(), true);
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.is_connected(), true);
+    EXPECT_EQ(graph.is_biconnected(), true);
+    EXPECT_EQ(graph.is_triconnected(), true);
 }
 
 
@@ -102,28 +182,14 @@ TEST(graphConnectivity, triconnected)
  */
 TEST(graphDikjstra, unreachable)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
+    libgraphcpp::Graph graph("../data/graphs_test/6_disconnected.obj");
 
-    Graph * graph;
-    graph = new Graph("../data/graphs_test/6_disconnected.obj", opts);
-    graph->init();
-
-    EXPECT_EQ(graph->dijkstra(0, 1), std::numeric_limits<double>::infinity());
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.dijkstra(0, 1), std::numeric_limits<double>::infinity());
 }
 
 TEST(graphDikjstra, reachable)
 {
-    graphOptions opts;
-    opts.loadYAML("../tests_config.yaml");
+    libgraphcpp::Graph graph("../data/graphs_test/0_graph_complete.obj");
 
-    Graph * graph;
-    graph = new Graph("../data/graphs_test/0_graph_complete.obj", opts);
-    graph->init();
-    
-    EXPECT_EQ(graph->dijkstra(0, 1), 20);
-    if (opts.visualization)
-        graph->plot();
+    EXPECT_EQ(graph.dijkstra(0, 1), 20);
 }

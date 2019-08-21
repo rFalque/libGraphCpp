@@ -11,15 +11,12 @@ struct graphOptions
     std::string path_graph_obj;
 
     // general options
-    bool visualization;
-    bool verbose;
+    bool visualization = false;
+    bool verbose = false;
 
     // visualization parameters
-    double nodes_ratio;
-    double edges_ratio;
-    double graph_res;
-    std::vector<double> nodes_color;
-    std::vector<double> edges_color;
+    std::vector<double> nodes_color = {1.0, 0.1, 0.1};
+    std::vector<double> edges_color = {0.1, 0.1, 0.1};
 
     void print(){
         std::cout << "list of the parameters:" << std::endl;
@@ -31,10 +28,7 @@ struct graphOptions
         std::cout << "visualization: " << visualization << std::endl;
         std::cout << "verbose: " << verbose << std::endl;
         std::cout << std::endl;
-        std::cout << "*** Embedded deformation parameters ***" << std::endl;
-        std::cout << "nodes_ratio: " << nodes_ratio << std::endl;
-        std::cout << "edges_ratio: " << edges_ratio << std::endl;
-        std::cout << "graph_res:   " << graph_res << std::endl;
+        std::cout << "*** Visualization parameters ***" << std::endl;
         std::cout << "nodes_color: [" << nodes_color[0] << "," << nodes_color[1] << "," << nodes_color[2] << "]" << std::endl;
         std::cout << "edges_color: [" << edges_color[0] << "," << edges_color[1] << "," << edges_color[2] << "]" << std::endl;
         std::cout << std::endl;
@@ -52,9 +46,6 @@ struct graphOptions
         verbose            = config["general_params"]["verbose"].as<bool>();
 
         // visualization parameters
-        nodes_ratio        = config["visualization_params"]["nodes_ratio"].as<double>();
-        edges_ratio        = config["visualization_params"]["edges_ratio"].as<double>();
-        graph_res          = config["visualization_params"]["graph_res"].as<double>();
         nodes_color        = config["visualization_params"]["nodes_color"].as<std::vector<double>>();
         edges_color        = config["visualization_params"]["edges_color"].as<std::vector<double>>();
 

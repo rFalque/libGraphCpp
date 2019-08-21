@@ -42,6 +42,7 @@ endif()
 
 
 add_subdirectory(../external_library ${CMAKE_CURRENT_BINARY_DIR}/external_library)
+add_subdirectory(../external_library/polyscope ${CMAKE_CURRENT_BINARY_DIR}/external_library/polyscope)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -51,13 +52,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 find_package(Eigen3 3.2.10 EXACT REQUIRED)
 
 include_directories(${EIGEN3_INCLUDE_DIR})
-
-# libigl
-option(LIBIGL_WITH_OPENGL            "Use OpenGL"                  ON)
-option(LIBIGL_WITH_OPENGL_GLFW       "Use GLFW"                    ON)
-#option(LIBIGL_WITH_OPENGL_GLFW_IMGUI "Use ImGui"          ON)
-option(LIBIGL_WITH_VIEWER            "Use OpenGL viewer"            ON)
-#option(LIBIGL_USE_STATIC_LIBRARY     "Use LibIGL as static library" ON)
 
 find_package(LIBIGL REQUIRED QUIET)
 #find_package(OpenGL REQUIRED)
@@ -77,9 +71,8 @@ include_directories(${PROJECT_NAME}_bin
 
 target_link_libraries(${PROJECT_NAME}_bin
 			${YAML_CPP_LIBRARIES}
-			igl::core
-			igl::opengl
-			igl::opengl_glfw
-			gtest_main)
+			gtest_main
+			polyscope
+      )
 
 add_test(NAME example_test COMMAND example)

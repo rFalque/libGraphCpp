@@ -16,8 +16,7 @@ int main(int argc, char* argv[])
     graphOptions opts;
     opts.loadYAML("../config.yaml");
 
-    Graph graph(opts.path_graph_obj, opts);
-    graph.init();
+    libgraphcpp::Graph graph(opts.path_graph_obj, opts);
 
     bool is_connected, is_biconnected, is_triconnected, has_bridges;
 
@@ -42,7 +41,10 @@ int main(int argc, char* argv[])
     std::sort( vertices_to_highlight.begin(), vertices_to_highlight.end() );
     vertices_to_highlight.erase( std::unique( vertices_to_highlight.begin(), vertices_to_highlight.end() ), vertices_to_highlight.end() );
 
+    std::cout << "number of points to highlight: " << vertices_to_highlight.size() << std::endl;
     graph.plot_and_highlight(vertices_to_highlight, bridges);
+
+    graph.plot_connectivity();
 
     graph.plot();
 
