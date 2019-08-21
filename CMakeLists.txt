@@ -51,12 +51,10 @@ set_target_properties(${PROJECT_NAME}_bin PROPERTIES CXX_STANDARD 11 CXX_STANDAR
 
 include_directories(${PROJECT_NAME}_bin
 			${PROJECT_SOURCE_DIR}/external_library/
-			${YAML_CPP_INCLUDE_DIR}
 			${EIGEN3_INCLUDE_DIR}
 			)
 
 target_link_libraries(${PROJECT_NAME}_bin 
-			${YAML_CPP_LIBRARIES}
 			polyscope
             yaml-cpp
 			)
