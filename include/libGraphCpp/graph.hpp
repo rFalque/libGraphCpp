@@ -309,6 +309,28 @@ namespace libgraphcpp
 			return true;
 		}
 
+		bool remove_edge(int edgeToRemove) 
+		{
+			// remove edge
+			removeRow(edges_, edgeToRemove);
+
+			init();
+
+			return true;
+		}
+
+		bool add_edge(Eigen::Vector2i edge)
+		{
+			// add node
+			Eigen::MatrixXi temp_edges = edges_;
+			edges_.resize(edges_.rows()+1, 3);
+			edges_ << temp_edges, edge.transpose();
+			
+			init();
+
+			return true;
+		}
+
 		bool collapse_edge(int edge_id)
 		{
 			// get nodes_id:
@@ -345,6 +367,22 @@ namespace libgraphcpp
 			return true;
 		}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		// this could be improve by using the list of cycles and collapsing the smallest edge in each cycle
 		std::vector<std::vector <int> > make_1D_curve()
 		{
@@ -368,7 +406,8 @@ namespace libgraphcpp
 					if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end())
 						edges_to_edit.push_back(i);
 
-				collapse_edge(edges_to_edit[0]);
+				//collapse_edge(edges_to_edit[0]);
+				remove_edge(edges_to_edit[0]);
 
 				// check for bridges
 				has_bridges_ = -1;
@@ -378,6 +417,22 @@ namespace libgraphcpp
 			opts_.verbose = verbose_temp;
 			return nodes_references;
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		bool transform (double scale, Eigen::Vector3d move) 
 		{
