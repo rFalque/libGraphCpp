@@ -27,7 +27,7 @@ make
 
 ## Features:
 * graph instanciation from nodes list and edges list or adjacency matrix ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
-* graph visualization (using [polyscope](http://polyscope.run/)
+* graph visualization (using [polyscope](http://polyscope.run/))
 * adding / removing nodes
 * adding / removing edges
 * edge collapsing
