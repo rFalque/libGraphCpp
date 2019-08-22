@@ -38,8 +38,9 @@ make
 * bridges detection (linear time)
 * shortest path on the graph
 
-## Features to add:
+### Features to add:
 * graph augmentation
+* save graphs as .obj files
 
 ## Design principles:
 * header only library
