@@ -567,27 +567,15 @@ namespace libgraphcpp
 			return has_bridges(bridges);
 		}
 
-		
-		Eigen::MatrixXd get_nodes()
-		{
-			return nodes_;
-		}
-
-		Eigen::MatrixXi get_edges()
-		{
-			return edges_;
-		}
+		// accessors
+		Eigen::MatrixXd get_nodes() { return nodes_; }
+		Eigen::Vector3d get_node(int i) { return nodes_.row(i); }
+		Eigen::MatrixXi get_edges() { return edges_; }
+		Eigen::Vector2i get_edge(int i) { return edges_.row(i); }
+		std::vector <int> get_adjacency_list(int i) { return adjacency_list_[i]; }
+		int get_adjacency_list(int i, int j) { return adjacency_list_[i][j]; }
 
 		/* TO BE REMOVED? */
-		std::vector <int> adjacency_list(int i)
-		{
-			return adjacency_list_[i];
-		}
-
-		int adjacency_list(int i, int j)
-		{
-			return adjacency_list_[i][j];
-		}
 
 		int edge_source(int i)
 		{
