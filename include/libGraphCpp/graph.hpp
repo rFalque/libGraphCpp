@@ -579,12 +579,12 @@ namespace libgraphcpp
 		}
 
 		/* TO BE REMOVED? */
-		std::vector <int> one_ring(int i)
+		std::vector <int> adjacency_list(int i)
 		{
 			return adjacency_list_[i];
 		}
 
-		int adj(int i, int j)
+		int adjacency_list(int i, int j)
 		{
 			return adjacency_list_[i][j];
 		}
