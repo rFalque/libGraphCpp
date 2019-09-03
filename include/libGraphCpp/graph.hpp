@@ -356,12 +356,12 @@ namespace libgraphcpp
 			nodes_ += move.transpose();
 		}
 
-		double dijkstra(int source, int target) 
+		double dijkstra(int source, int target, std::vector<int>& node_path) 
 		{
 			// initialization
 			double distance_source_to_target;
 			std::vector<double> min_distance(num_nodes_, std::numeric_limits<double>::infinity());
-			min_distance.at(source) = 0;
+			std::vector<int> previous_node(num_nodes_, -1);
 
 			// set the set of visited nodes:
 			std::vector<int> visited;
@@ -369,22 +369,23 @@ namespace libgraphcpp
 
 			// initialize the node to start from
 			int u = source;
+			min_distance.at(source) = 0;
 
 			// start searching
 			bool target_found;
-
-			while (!target_found)
-			{
-				for (int i = 0; i < adjacency_list_.at(u).size(); ++i)
-				{
+			while (!target_found) {
+				// check all neighbours of "u"
+				for (int i = 0; i < adjacency_list_.at(u).size(); ++i) {
 					int neighbour_node = adjacency_list_.at(u).at(i);
 					double edge_length = edges_length_(adjacency_edge_list_.at(u).at(i));
 					if (not is_element_in_vector(neighbour_node, to_visit))
 						if (not is_element_in_vector(neighbour_node, visited))
 							to_visit.push_back(neighbour_node);
 					
-					if ( min_distance.at(u) + edge_length < min_distance.at( neighbour_node ) )
+					if ( min_distance.at(u) + edge_length < min_distance.at( neighbour_node ) ) {
 						min_distance.at( neighbour_node ) = min_distance.at(u) +  edge_length;
+						previous_node.at( neighbour_node ) = u;
+					}
 				}
 
 				visited.push_back(u);
@@ -405,12 +406,30 @@ namespace libgraphcpp
 
 				u = to_visit.at(index_of_next_point);
 				to_visit.erase(to_visit.begin() + index_of_next_point);
-
 			}
 			
+			// backtracking to generate path
+//			if (min_distance.at(target) != std::numeric_limits<double>::infinity())
+			int backtracking_node = target;
+			node_path.insert(node_path.begin(), backtracking_node);
+			
+			std::cout << "node list:" << backtracking_node << ", ";
+			
+			while (backtracking_node != source) {
+				node_path.insert(node_path.begin(), previous_node[backtracking_node]);
+				backtracking_node = previous_node[backtracking_node];
+				std::cout << backtracking_node << ", ";
+			}
+			std::cout << "node list:" << backtracking_node << "\n";
+
 			return min_distance.at(target);
 		}
 
+		double dijkstra(int source, int target)
+		{
+			std::vector<int> node_path;
+			return  dijkstra(source, target, node_path);
+		}
 
 		/* CONNECTIVITY TESTS */
 		bool is_connected()
