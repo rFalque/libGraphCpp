@@ -49,15 +49,17 @@ namespace libgraphcpp
 		std::vector< std::pair<int, int> > two_cut_vertices_;               // set of two-cut vertices    : vector of nodes ids pair
 		std::vector<int> bridges_;                                          // set of briges              : vector of edges ids
 		
-		// internal functions used iteratively (defined at the bottom of the file)
+		// internal functions: tools (defined at the bottom of the file)
 		inline void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 		inline void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
 		inline void removeDuplicates(std::vector<std::pair<int, int>>& v);
+		inline bool is_element_in_vector(int a, std::vector<int> & A);
+		
+		// internal functions: iterative functions (defined at the bottom of the file)
 		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
 		inline void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
 		inline void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
-		inline bool is_element_in_vector(int a, std::vector<int> & A);
-
+		
 	public:
 
 		Graph(std::string file_name)
@@ -280,6 +282,28 @@ namespace libgraphcpp
 			return true;
 		}
 
+		bool remove_edge(int edgeToRemove) 
+		{
+			// remove edge
+			removeRow(edges_, edgeToRemove);
+
+			init();
+
+			return true;
+		}
+
+		bool add_edge(Eigen::Vector2i edge)
+		{
+			// add node
+			Eigen::MatrixXi temp_edges = edges_;
+			edges_.resize(edges_.rows()+1, 3);
+			edges_ << temp_edges, edge.transpose();
+			
+			init();
+
+			return true;
+		}
+
 		bool collapse_edge(int edge_id)
 		{
 			// get nodes_id:
@@ -316,7 +340,7 @@ namespace libgraphcpp
 			return true;
 		}
 
-		// this could be improve by using the list of cycles and collapsing the smallest edge in each cycle
+		// to revisit and rename by make_tree
 		std::vector<std::vector <int> > make_1D_curve()
 		{
 			std::vector<std::vector <int> > nodes_references(num_nodes_);
@@ -335,11 +359,31 @@ namespace libgraphcpp
 
 				// list all non bridges
 				std::vector <int> edges_to_edit;
+				std::vector <double> edges_length;
 				for (int i=0; i<num_edges_; i++)
-					if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end())
+					if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end()) {
 						edges_to_edit.push_back(i);
+						edges_length.push_back(edges_length_(i));
+					}
 
-				collapse_edge(edges_to_edit[0]);
+				// sort edges by decreasing length
+				for (int i=0; i<edges_to_edit.size(); i++)
+					std::cout << "edge id: " << edges_to_edit[i] << " \t with length: " <<  edges_length[i] << std::endl;
+
+				std::cout << "\n\nSorting:\n";
+				std::vector<std::pair<double, int>> sorting_container;
+				sorting_container.reserve(edges_to_edit.size());
+				std::transform(edges_length.begin(), edges_length.end(), edges_to_edit.begin(), std::back_inserter(sorting_container),
+					[](double a, int b) { return std::make_pair(a, b); });
+
+				std::sort(sorting_container.begin(), sorting_container.end()); 
+				std::reverse(sorting_container.begin(), sorting_container.end());
+
+				for (int i=0; i<edges_to_edit.size(); i++)
+					std::cout << "edge id: " << sorting_container[i].second << " \t with length: " <<  sorting_container[i].first << std::endl;
+
+				//collapse_edge(edges_to_edit[0]);
+				remove_edge(sorting_container[0].second);
 
 				// check for bridges
 				has_bridges_ = -1;
@@ -432,6 +476,14 @@ namespace libgraphcpp
 		}
 
 		/* CONNECTIVITY TESTS */
+		bool connectivity_tests()
+		{
+			is_connected();
+			is_biconnected();
+			is_triconnected();
+			has_bridges();
+		}
+		
 		bool is_connected()
 		{
 			if (is_connected_ == -1) {
@@ -481,6 +533,8 @@ namespace libgraphcpp
 				// if not biconnected, update triconnectivity
 				if (is_biconnected_ == 0)
 					is_triconnected_ = 0;
+				
+				one_cut_vertices_ = one_cut_vertices; 
 			}
 
 			if (opts_.verbose)
@@ -525,9 +579,10 @@ namespace libgraphcpp
 						}
 					is_triconnected_ &= reduced_graph_is_biconnected;
 				}
+				
+				removeDuplicates(two_cut_vertices);
+				two_cut_vertices_ = two_cut_vertices; 
 			}
-
-			removeDuplicates(two_cut_vertices);
 
 			if (opts_.verbose) {
 				std::cout << "graph is 3-connected: " << is_triconnected_ << std::endl;
@@ -655,6 +710,12 @@ namespace libgraphcpp
 		auto last = unique(v.begin(), v.end() );
 		v.erase(last, v.end());
 	};
+	
+	bool Graph::is_element_in_vector(int a, std::vector<int> & A)
+	{
+		auto it = std::find(A.begin(), A.end(), a);
+		return it != A.end();
+	}
 
 	// used for checking connectivity:
 	//
@@ -790,14 +851,6 @@ namespace libgraphcpp
 				low[u]  = std::min(low[u], disc[v]); 
 		}
 	};
-
-	
-	bool Graph::is_element_in_vector(int a, std::vector<int> & A)
-	{
-		auto it = std::find(A.begin(), A.end(), a);
-		return it != A.end();
-	}
-
 
 }
 
