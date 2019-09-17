@@ -33,17 +33,9 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
 
-# Now simply link against gtest or gtest_main as needed. Eg
-#add_executable(example example.cpp)
-#target_link_libraries(example gtest_main)
-#add_test(NAME example_test COMMAND example)
-
-
-
 option(YAML_CPP_BUILD_TOOLS "Enable testing and parse tools" OFF)
 
 add_subdirectory(../external_library ${CMAKE_CURRENT_BINARY_DIR}/external_library)
-#add_subdirectory(../external_library/polyscope ${CMAKE_CURRENT_BINARY_DIR}/external_library/polyscope)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -51,12 +43,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 
 # specific version of eigen needed
 find_package(Eigen3 3.2.10 EXACT REQUIRED)
-find_package(yaml-cpp REQUIRED)
-
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-#find_package(LIBIGL REQUIRED QUIET)
-#find_package(OpenGL REQUIRED)
+# add yaml-cpp
+find_package(yaml-cpp REQUIRED)
 
 include_directories(../include)
 
