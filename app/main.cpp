@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
 
     graph.plot();
 
-    std::cout << "Make the graph one dimentional:\n";
-    graph.make_1D_curve();
+    std::cout << "Transform the graph into a tree:\n";
+    graph.make_tree();
     graph.plot();
 
     return 0;
