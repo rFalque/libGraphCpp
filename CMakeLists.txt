@@ -40,6 +40,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen3 3.2.10 EXACT REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 
+### find yaml-cpp
+find_package(yaml-cpp REQUIRED)
 
 include_directories(include)
 
