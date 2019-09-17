@@ -5,9 +5,14 @@ We provide a simple and light graph library for visualizing and analyzing graph 
 ![Graph visualization](./images/graph_library.png "light C++ graph library")
 
 ## Installation:
-Install [Eigen](https://eigen.tuxfamily.org/) which is a dependency.
+First, make sure [Eigen](https://eigen.tuxfamily.org/) and [yaml-cpp](https://github.com/jbeder/yaml-cpp/wiki/Tutorial) are installed:
 
-Then simply type the following commands in the command line:
+```bash
+sudo apt-get update
+sudo apt-get install libeigen3-dev libyaml-cpp-dev
+```
+
+Then, simply type the following commands in the command line:
 
 To build the library and the example
 ```bash
