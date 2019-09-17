@@ -33,15 +33,15 @@ make
 ## Features:
 * graph instanciation from nodes list and edges list or adjacency matrix ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
 * graph visualization (using [polyscope](http://polyscope.run/))
-* adding / removing nodes
+* adding / removing / merge nodes
 * adding / removing edges
 * edge collapsing
-* transformation into 1D curve
+* transformation into a tree, and basic trimming
 * connectivity (linear time)
 * biconnectivity (linear time)
 * triconnectivity (quadratic time)
 * bridges detection (linear time)
-* shortest path on the graph
+* shortest path on the graph (dijkstra)
 
 ### Features to add:
 * graph augmentation
