@@ -32,8 +32,9 @@ make
 
 ## Features:
 * graph instanciation from nodes list and edges list or adjacency matrix ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
+* load / save graphs as `.obj` files
 * graph visualization (using [polyscope](http://polyscope.run/))
-* adding / removing / merge nodes
+* adding / removing / merging nodes
 * adding / removing edges
 * edge collapsing
 * transformation into a tree, and basic trimming
@@ -45,10 +46,9 @@ make
 
 ### Features to add:
 * graph augmentation
-* save graphs as .obj files
 
 ## Design principles:
-* header only library
+* headers only library
 * simple structures for storing the graph (Eigen::Matrix) and adjacency lists (std::vector)
 * easy to modify
 

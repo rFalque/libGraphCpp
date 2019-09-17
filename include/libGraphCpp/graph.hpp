@@ -6,6 +6,7 @@
 #include <limits>
 
 #include "readGraphOBJ.hpp"
+#include "writeGraphOBJ.hpp"
 #include "plotGraph.hpp"
 #include "graphOptions.hpp"
 
@@ -132,6 +133,12 @@ namespace libgraphcpp
 		// destructor
 		~Graph()
 		{
+		}
+
+		// save graph as OBJ file
+		void save(std::string output_file)
+		{
+			writeGraphOBJ(nodes_, edges_, output_file);
 		}
 
 		// initialisation of the private variables
