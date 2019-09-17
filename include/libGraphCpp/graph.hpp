@@ -31,6 +31,7 @@ namespace libgraphcpp
 		Eigen::MatrixXi edges_;                                             // should be a M by 2 matrix of integers
 		int num_nodes_;                                                     // set to N
 		int num_edges_;                                                     // set to M
+		double scale_;                                                      // used to trim the tree in simplify_tree 
 		
 		// structures used for fast circulation through data
 		std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
@@ -149,6 +150,11 @@ namespace libgraphcpp
 			num_nodes_ = nodes_.rows();
 			num_edges_ = edges_.rows();
 
+			// get scale
+			Eigen::MatrixXd max_point = nodes_.colwise().maxCoeff();
+			Eigen::MatrixXd min_point = nodes_.colwise().minCoeff();
+			scale_ = (max_point - min_point).norm();
+
 			// set up edges_length
 			edges_length_ = Eigen::VectorXd::Zero(num_edges_);
 			for (int i=0; i<num_edges_; i++)
@@ -256,14 +262,25 @@ namespace libgraphcpp
 					std::cout << "Isolated vertices at: " << i << std::endl;
 		}
 
-		int num_nodes()
+		bool add_node(Eigen::Vector3d node, std::vector<int> neighbours)
 		{
-			return num_nodes_;
-		}
+			// add node
+			Eigen::MatrixXd temp_nodes = nodes_;
+			nodes_.resize(nodes_.rows()+1, 3);
+			nodes_ << temp_nodes, node.transpose();
+			
+			// add related edges
+			Eigen::MatrixXi temp_edges = edges_;
+			Eigen::MatrixXi edges_to_add(neighbours.size(), 2);
+			for (int edge_iterator=0; edge_iterator<neighbours.size(); edge_iterator++)
+				edges_to_add.row(edge_iterator) << nodes_.rows()-1, neighbours[edge_iterator];
+			
+			edges_.resize(temp_edges.rows()+edges_to_add.rows(), 2);
+			edges_ << temp_edges, edges_to_add;
 
-		int num_edges()
-		{
-			return num_edges_;
+			init();
+
+			return true;
 		}
 
 		bool remove_node(int nodeToRemove) 
@@ -288,22 +305,40 @@ namespace libgraphcpp
 			return true;
 		}
 
-		bool add_node(Eigen::Vector3d node, std::vector<int> neighbours)
+		bool merge_nodes(std::vector<int> nodes)
+		{
+			// store connected elements first
+			std::vector<int> neighbours;
+			for (int node : nodes)
+				for (int neighour : adjacency_list_[node])
+					neighbours.push_back(neighour);
+
+			std::sort(neighbours.begin(), neighbours.end());
+			neighbours.erase( std::unique( neighbours.begin(), neighbours.end() ), neighbours.end() );
+
+			// find node position
+			Eigen::Vector3d merged_node;
+			merged_node << 0,0,0;
+			for (int node : nodes)
+				merged_node += nodes_.row(node);
+			merged_node /= nodes.size();
+
+			// add merged node (it is stacked at the end so it has to be done before deleting the nodes)
+			add_node(merged_node, neighbours);
+			
+			// delete other nodes
+			std::sort(nodes.begin(), nodes.end(), std::greater<int> ());
+			for (int node : nodes)
+				remove_node(node);
+		}
+
+		bool add_edge(Eigen::Vector2i edge)
 		{
 			// add node
-			Eigen::MatrixXd temp_nodes = nodes_;
-			nodes_.resize(nodes_.rows()+1, 3);
-			nodes_ << temp_nodes, node.transpose();
-			
-			// add related edges
 			Eigen::MatrixXi temp_edges = edges_;
-			Eigen::MatrixXi edges_to_add(neighbours.size(), 2);
-			for (int edge_iterator=0; edge_iterator<neighbours.size(); edge_iterator++)
-				edges_to_add.row(edge_iterator) << nodes_.rows()-1, neighbours[edge_iterator];
+			edges_.resize(edges_.rows()+1, 3);
+			edges_ << temp_edges, edge.transpose();
 			
-			edges_.resize(temp_edges.rows()+edges_to_add.rows(), 2);
-			edges_ << temp_edges, edges_to_add;
-
 			init();
 
 			return true;
@@ -314,18 +349,6 @@ namespace libgraphcpp
 			// remove edge
 			removeRow(edges_, edgeToRemove);
 
-			init();
-
-			return true;
-		}
-
-		bool add_edge(Eigen::Vector2i edge)
-		{
-			// add node
-			Eigen::MatrixXi temp_edges = edges_;
-			edges_.resize(edges_.rows()+1, 3);
-			edges_ << temp_edges, edge.transpose();
-			
 			init();
 
 			return true;
@@ -367,24 +390,7 @@ namespace libgraphcpp
 			return true;
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		// this could be improve by using the list of cycles and collapsing the smallest edge in each cycle
-		std::vector<std::vector <int> > make_1D_curve()
+		std::vector<std::vector <int> > make_tree()
 		{
 			std::vector<std::vector <int> > nodes_references(num_nodes_);
 			for (int i=0; i<num_nodes_; i++)
@@ -402,12 +408,31 @@ namespace libgraphcpp
 
 				// list all non bridges
 				std::vector <int> edges_to_edit;
+				std::vector <double> edges_length;
 				for (int i=0; i<num_edges_; i++)
-					if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end())
+					if (find (bridges_.begin(), bridges_.end(), i) == bridges_.end()) {
 						edges_to_edit.push_back(i);
+						edges_length.push_back(edges_length_(i));
+					}
+
+				// sort edges by decreasing length
+				//for (int i=0; i<edges_to_edit.size(); i++)
+				//	std::cout << "edge id: " << edges_to_edit[i] << " \t with length: " <<  edges_length[i] << std::endl;
+
+				//std::cout << "\n\nSorting:\n";
+				std::vector<std::pair<double, int>> sorting_container;
+				sorting_container.reserve(edges_to_edit.size());
+				std::transform(edges_length.begin(), edges_length.end(), edges_to_edit.begin(), std::back_inserter(sorting_container),
+					[](double a, int b) { return std::make_pair(a, b); });
+
+				std::sort(sorting_container.begin(), sorting_container.end()); 
+				std::reverse(sorting_container.begin(), sorting_container.end());
+
+				//for (int i=0; i<edges_to_edit.size(); i++)
+				//	std::cout << "edge id: " << sorting_container[i].second << " \t with length: " <<  sorting_container[i].first << std::endl;
 
 				//collapse_edge(edges_to_edit[0]);
-				remove_edge(edges_to_edit[0]);
+				remove_edge(sorting_container[0].second);
 
 				// check for bridges
 				has_bridges_ = -1;
@@ -418,21 +443,72 @@ namespace libgraphcpp
 			return nodes_references;
 		}
 
+		void simplify_tree()
+		{
+			/* 
+			 * for each junctions:
+			 * if the distance between two junction is "small"
+			 * then merge all the nodes in the path
+			 */
+			std::vector<int> junction_list;
+			start_junction_checking:
+			junction_list.clear();
+			for (int i=0; i<adjacency_list_.size(); i++)
+				if (adjacency_list_[i].size()>2)
+					junction_list.push_back(i);
 
+			for (int i = 0; i<junction_list.size(); i++) {
+				for (int j = i+1; j<junction_list.size(); j++) {
+					std::vector<int> path;
+					double junctions_distance = dijkstra(junction_list[i], junction_list[j], path);
 
+					if (junctions_distance < scale_/10)
+					{
+						merge_nodes(path);
+						goto start_junction_checking; // went throwing up after writing this
+					}
+				}
+			}
 
+			/* 
+			 * for each leaf:
+			 * if the distance to the closest junction is "small"
+			 * then delete all nodes until this node is reached
+			 */
+			std::vector<int> leaves_list;
+			junction_list.clear();
+			for (int i=0; i<adjacency_list_.size(); i++){
+				if (adjacency_list_[i].size()==1)
+					leaves_list.push_back(i);
+				
+				if (adjacency_list_[i].size()>2)
+					junction_list.push_back(i);
+			}
 
+			// for each leaves check the distance to each junction
+			std::vector<int> nodes_to_delete;
+			for (int leaf: leaves_list) {
+				for (int junction: junction_list) {
+					std::vector<int> path;
+					double leaf_to_junction_distance = dijkstra(leaf, junction, path);
 
+					if (leaf_to_junction_distance < scale_/10)
+					{
+						for (int node_id : path)
+							if (node_id != junction)
+								nodes_to_delete.push_back(node_id);
+					}
+				}
+			}
 
+			if (nodes_to_delete.size() != 0) {
+				std::sort(nodes_to_delete.begin(), nodes_to_delete.end(), std::greater<int>());
+				nodes_to_delete.erase( std::unique( nodes_to_delete.begin(), nodes_to_delete.end() ), nodes_to_delete.end() );
+				for (int node_id : nodes_to_delete)
+					remove_node(node_id);
+			}
 
-
-
-
-
-
-
-
-
+		}
 
 		bool transform (double scale, Eigen::Vector3d move) 
 		{
@@ -440,12 +516,12 @@ namespace libgraphcpp
 			nodes_ += move.transpose();
 		}
 
-		double dijkstra(int source, int target) 
+		double dijkstra(int source, int target, std::vector<int>& node_path) 
 		{
 			// initialization
 			double distance_source_to_target;
 			std::vector<double> min_distance(num_nodes_, std::numeric_limits<double>::infinity());
-			min_distance.at(source) = 0;
+			std::vector<int> previous_node(num_nodes_, -1);
 
 			// set the set of visited nodes:
 			std::vector<int> visited;
@@ -453,21 +529,23 @@ namespace libgraphcpp
 
 			// initialize the node to start from
 			int u = source;
+			min_distance.at(source) = 0;
 
 			// start searching
 			bool target_found;
-			while (!target_found)
-			{
-				for (int i = 0; i < adjacency_list_.at(u).size(); ++i)
-				{
+			while (!target_found) {
+				// check all neighbours of "u"
+				for (int i = 0; i < adjacency_list_.at(u).size(); ++i) {
 					int neighbour_node = adjacency_list_.at(u).at(i);
 					double edge_length = edges_length_(adjacency_edge_list_.at(u).at(i));
 					if (not is_element_in_vector(neighbour_node, to_visit))
 						if (not is_element_in_vector(neighbour_node, visited))
 							to_visit.push_back(neighbour_node);
 					
-					if ( min_distance.at(u) + edge_length < min_distance.at( neighbour_node ) )
+					if ( min_distance.at(u) + edge_length < min_distance.at( neighbour_node ) ) {
 						min_distance.at( neighbour_node ) = min_distance.at(u) +  edge_length;
+						previous_node.at( neighbour_node ) = u;
+					}
 				}
 
 				visited.push_back(u);
@@ -488,12 +566,27 @@ namespace libgraphcpp
 
 				u = to_visit.at(index_of_next_point);
 				to_visit.erase(to_visit.begin() + index_of_next_point);
-
 			}
 			
+			// backtracking to generate path
+			if (min_distance.at(target) != std::numeric_limits<double>::infinity()) {
+				int backtracking_node = target;
+				node_path.insert(node_path.begin(), backtracking_node);
+				
+				while (backtracking_node != source) {
+					node_path.insert(node_path.begin(), previous_node[backtracking_node]);
+					backtracking_node = previous_node[backtracking_node];
+				}
+			}
+
 			return min_distance.at(target);
 		}
 
+		double dijkstra(int source, int target)
+		{
+			std::vector<int> node_path;
+			return  dijkstra(source, target, node_path);
+		}
 
 		/* CONNECTIVITY TESTS */
 		bool connectivity_tests()
@@ -656,6 +749,8 @@ namespace libgraphcpp
 			return has_bridges_;
 		}
 
+
+
 		// overload has_bridges
 		bool has_bridges()
 		{
@@ -663,22 +758,17 @@ namespace libgraphcpp
 			return has_bridges(bridges);
 		}
 
-		
-		Eigen::MatrixXd get_nodes()
-		{
-			return nodes_;
-		}
-
-		Eigen::MatrixXi get_edges()
-		{
-			return edges_;
-		}
+		// accessors
+		int num_nodes() { return num_nodes_; }
+		int num_edges() { return num_edges_; }
+		Eigen::MatrixXd get_nodes() { return nodes_; }
+		Eigen::Vector3d get_node(int i) { return nodes_.row(i); }
+		Eigen::MatrixXi get_edges() { return edges_; }
+		Eigen::Vector2i get_edge(int i) { return edges_.row(i); }
+		std::vector <int> get_adjacency_list(int i) { return adjacency_list_[i]; }
+		int get_adjacency_list(int i, int j) { return adjacency_list_[i][j]; }
 		
 		/* TO BE REMOVED? */
-		int adj(int i, int j)
-		{
-			return adjacency_list_[i][j];
-		}
 
 		int edge_source(int i)
 		{
