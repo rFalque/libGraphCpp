@@ -59,8 +59,23 @@ int main(int argc, char* argv[])
 
 
     // turn the graph into a tree
+    std::vector <std::vector<int>> cycle_basis;
+
+    std::cout << "graph has cycles: " << graph.has_cycles(cycle_basis) << std::endl;
+    for (int i=0; i<cycle_basis.size(); i++)
+    {
+        std::cout << "cycle number[" << i << "] include the nodes: ";
+        for (int node_id : cycle_basis[i])
+            std::cout << node_id << " ";
+        std::cout << std::endl;
+    }
+
     graph.make_tree();
     graph.plot();
+
+    
+    std::cout << "graph has cycles: " << graph.has_cycles() << std::endl;
+
 
 
     // save the graph

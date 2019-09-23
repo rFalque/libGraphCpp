@@ -45,12 +45,15 @@ namespace libgraphcpp
 		int is_biconnected_ = -1;                                           // 0 no, 1 yes, -1 undefined
 		int is_triconnected_ = -1;                                          // 0 no, 1 yes, -1 undefined
 		int has_bridges_ = -1;                                              // 0 no, 1 yes, -1 undefined
+		int has_cycle_ = -1;                                                // 0 no, 1 yes, -1 undefined
 
 		// storing of the cut sets
 		std::vector< int > one_cut_vertices_;                               // set of articulation points : vector of nodes ids
 		std::vector< std::pair<int, int> > two_cut_vertices_;               // set of two-cut vertices    : vector of nodes ids pair
 		std::vector<int> bridges_;                                          // set of briges              : vector of edges ids
+		std::vector< std::vector<int> > cycles_;                            // set of cycles
 		
+
 		// internal functions: tools (defined at the bottom of the file)
 		inline void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 		inline void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
@@ -62,6 +65,7 @@ namespace libgraphcpp
 		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
 		inline void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
 		inline void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
+		inline void dfs_cycle(int u, int p, std::vector<int>& color, std::vector<int>& mark, std::vector<int>& par, int& cyclenumber) ;
 
 	public:
 
@@ -202,7 +206,8 @@ namespace libgraphcpp
 		}
 
 
-		bool plot_connectivity() {
+		bool plot_connectivity() 
+		{
 			connectivity_tests();
 			Eigen::MatrixXd empty; 			// used to pass empty content
 			Eigen::MatrixXd highlight;
@@ -397,18 +402,21 @@ namespace libgraphcpp
 			return true;
 		}
 
-		std::vector<std::vector <int> > make_tree()
+		std::vector<std::vector <int> >  make_tree(Eigen::MatrixXi& deleted_edges)
 		{
 			std::vector<std::vector <int> > nodes_references(num_nodes_);
 			for (int i=0; i<num_nodes_; i++)
 				nodes_references[i].push_back(i);
-
+			
 			bool verbose_temp = opts_.verbose;
 			opts_.verbose = false;
 
 			// check for bridges
 			has_bridges_ = -1;
 			has_bridges();
+
+			deleted_edges.resize(num_edges_ - num_nodes_ + 1, 2); // cycle rank * 2
+			int counter = 0;
 
 			while (bridges_.size() != num_edges_)
 			{
@@ -423,10 +431,6 @@ namespace libgraphcpp
 					}
 
 				// sort edges by decreasing length
-				//for (int i=0; i<edges_to_edit.size(); i++)
-				//	std::cout << "edge id: " << edges_to_edit[i] << " \t with length: " <<  edges_length[i] << std::endl;
-
-				//std::cout << "\n\nSorting:\n";
 				std::vector<std::pair<double, int>> sorting_container;
 				sorting_container.reserve(edges_to_edit.size());
 				std::transform(edges_length.begin(), edges_length.end(), edges_to_edit.begin(), std::back_inserter(sorting_container),
@@ -435,12 +439,14 @@ namespace libgraphcpp
 				std::sort(sorting_container.begin(), sorting_container.end()); 
 				std::reverse(sorting_container.begin(), sorting_container.end());
 
-				//for (int i=0; i<edges_to_edit.size(); i++)
-				//	std::cout << "edge id: " << sorting_container[i].second << " \t with length: " <<  sorting_container[i].first << std::endl;
+				// store edges
+				deleted_edges.row(counter) << edges_.row(sorting_container[0].second);
+				counter ++;
 
+				// actually store the edges
 				//collapse_edge(edges_to_edit[0]);
 				remove_edge(sorting_container[0].second);
-
+				
 				// check for bridges
 				has_bridges_ = -1;
 				has_bridges();
@@ -448,6 +454,13 @@ namespace libgraphcpp
 
 			opts_.verbose = verbose_temp;
 			return nodes_references;
+		}
+
+		// overload make_tree if deleted edges are not needed
+		std::vector<std::vector <int> >  make_tree()
+		{
+			Eigen::MatrixXi deleted_edges;
+			return make_tree(deleted_edges);
 		}
 
 		void simplify_tree()
@@ -756,13 +769,39 @@ namespace libgraphcpp
 			return has_bridges_;
 		}
 
-
-
 		// overload has_bridges
 		bool has_bridges()
 		{
 			std::vector<int> bridges;
 			return has_bridges(bridges);
+		}
+
+		// return a cycles basis (see: An Algorithm for Finding a Fundamental Set of Cycles of a Graph)
+		bool has_cycles(std::vector <std::vector<int>>& cycle_basis)
+		{
+			graphOptions opts = opts_;
+			opts.verbose = false;
+			Graph spanning_tree(nodes_, edges_, opts);
+			Eigen::MatrixXi deleted_edges;
+			spanning_tree.make_tree(deleted_edges);
+
+			for (int i=0; i<deleted_edges.rows(); i++) {
+				std::vector<int> cycle;
+				spanning_tree.dijkstra(deleted_edges(i, 0), deleted_edges(i, 1), cycle);
+				cycle_basis.push_back(cycle);
+			}
+			
+			if (cycle_basis.size() != 0)
+				return true;
+			else
+				return false;
+		}
+
+		// overload has_cycle
+		bool has_cycles()
+		{
+			std::vector <std::vector <int>> cycles;
+			return has_cycles(cycles);
 		}
 
 		// accessors
@@ -988,6 +1027,7 @@ namespace libgraphcpp
 				low[u]  = std::min(low[u], disc[v]); 
 		}
 	};
+
 }
 
 
