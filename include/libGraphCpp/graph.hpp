@@ -200,10 +200,10 @@ namespace libgraphcpp
 			}
 		}
 
-		bool plot() {
+		bool plot() 
+		{
 			return polyscope_plot(nodes_, edges_);
 		}
-
 
 		bool plot_connectivity() 
 		{
@@ -236,7 +236,6 @@ namespace libgraphcpp
 			return true;
 		}
 
-
 		bool plot_and_highlight(std::vector<int> node_list, std::vector<int> edge_list)
 		{
 			// set default_values 
@@ -264,7 +263,6 @@ namespace libgraphcpp
 
 			return true;
 		}
-
 
 		bool print_isolated_vertices()
 		{
@@ -603,6 +601,14 @@ namespace libgraphcpp
 					for (int k=0; k<clusters[j].size(); k++) {
 						int offset = 0;
 						for (int merged_node : clusters[i]) {
+							// first check if the point is shared (it would then be the last node)
+							if (clusters[j][k] == merged_node)
+							{
+								offset = 0;
+								clusters[j][k] = num_nodes_-1;
+								break;
+							}
+							// otherwise check if the merged point is lower, then the node has to be shifted of one position
 							if (clusters[j][k] > merged_node)
 								offset ++;
 						}
