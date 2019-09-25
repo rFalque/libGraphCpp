@@ -31,7 +31,7 @@ namespace libgraphcpp
 		int num_nodes_;                                                     // set to N
 		int num_edges_;                                                     // set to M
 		double scale_;                                                      // used to trim the tree in simplify_tree 
-		double cycle_ratio_ = 10;
+		double cycle_ratio_ = 3;
 		
 		// structures used for fast circulation through data
 		std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
@@ -529,107 +529,30 @@ namespace libgraphcpp
 
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		void symplify_graph()
 		{
-			std::cout << "test1\n";
 			// list all cycles
 			std::vector< std::vector< int > > cycle_basis;
 			std::vector< double > cycle_lengths;
 			has_cycles(cycle_basis, cycle_lengths);
 
-			std::cout << "test2\n";
-
 			// remove large cycles
-    		cycle_lengths.erase(
-      			std::remove_if(
-        			cycle_lengths.begin(), cycle_lengths.end(),
-        			[](int i) { return (cycle_lengths[i] > scale_/cycle_ratio_); }
-      			),
-      			cycle_lengths.end()
-    		);
-
-/*
-			// remove large cycles
-			std::cout << "cycle_lengths.size(): " << cycle_lengths.size() <<std::endl;
-			for(it2 = cycle_lengths.begin(); it2 != cycle_lengths.end();)
-			{ 
-				if(...)
-				{
-					it2 = cycle_lengths.erase(it2); 
-				}
-				else
-				{
-					++it2;
+			for(int i=0; i<cycle_lengths.size();) {
+				if(cycle_lengths[i] > scale_/cycle_ratio_) {
+					cycle_lengths.erase(cycle_lengths.begin()+i); 
+					cycle_basis.erase(cycle_basis.begin() + i);
+				} else {
+					++i;
 				}
 			}
-			std::cout << "cycle_lengths.size(): " << cycle_lengths.size() <<std::endl;
-			for (int i=cycle_lengths.size(); i-- != 0;)
-				if (cycle_lengths[i] > scale_/cycle_ratio_) {
-					std::cout << "i: " << i <<std::endl;
-					cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin() + i);
-				}
-*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			std::cout << "test3\n";
 			// find set of clustered nodes
 			std::vector< std::vector< int > > clusters;
 			bool clusters_found = false;
 			while (!clusters_found) {
 				std::vector <int> cluster_temp;
 				cluster_temp = cycle_basis[0];
-				cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin());
-
-
-
-
-			std::cout << "test4\n";
-
-
-
-
-
-
-
-
-
-
-
+				cycle_basis.erase(cycle_basis.begin());
 
 				for(int i=0; i<cycle_basis.size(); )
 				{
@@ -657,58 +580,36 @@ namespace libgraphcpp
 
 					if(each_cycle_have_common_elements) {
 						cluster_temp.insert( cluster_temp.end(), cycle_basis[i].begin(), cycle_basis[i].end() );
-						cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin()+i);
+						cycle_basis.erase(cycle_basis.begin()+i);
 					} else {
 						++i;
 					}
 				}
 
+				// add sort + unique
+				sort( cluster_temp.begin(), cluster_temp.end() );
+				cluster_temp.erase( unique( cluster_temp.begin(), cluster_temp.end() ), cluster_temp.end() );
+				clusters.push_back(cluster_temp);
+
 				if (cycle_basis.size() == 0)
 					clusters_found = true;
 			}
 
-
-			std::cout << "test5\n";
 			// merge nodes
-			// there is a problem as the clusters should be updated
-			for (int i=0; i<clusters.size(); i++)
+			for (int i=0; i<clusters.size(); i++) {
 				merge_nodes(clusters[i]);
+				// each time a node is removed, the other lists should be updated to avoid deleting the wrong nodes
+				for (int j=i+1; j<clusters.size(); j++)
+					for (int k=0; k<clusters[j].size(); k++) {
+						int offset = 0;
+						for (int merged_node : clusters[i]) {
+							if (clusters[j][k] > merged_node)
+								offset ++;
+						}
+						clusters[j][k] -= offset;
+					}
+			}
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		bool transform (double scale, Eigen::Vector3d move) 
 		{
@@ -956,7 +857,8 @@ namespace libgraphcpp
 			return has_bridges(bridges);
 		}
 
-		// return a cycles basis (see: An Algorithm for Finding a Fundamental Set of Cycles of a Graph)
+		// return a fundamental cycles basis (see: An Algorithm for Finding a Fundamental Set of Cycles of a Graph)
+		// should use DFS or BFS for generating the tree
 		bool has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths)
 		{
 			graphOptions opts = opts_;
