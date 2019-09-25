@@ -5,7 +5,9 @@ io_files:
   #graph_obj: "../data/graphs_test/0_graph_complete.obj"
   #graph_obj: "../data/graphs_test/1_graph_complete_smaller.obj"
   #graph_obj: "../data/graphs_test/4_1_edge_connectetivity.obj"
-  graph_obj: "../data/graphs_test/5_2_edge_connectetivity.obj"
+  #graph_obj: "../data/graphs_test/5_2_edge_connectetivity.obj"
+  #graph_obj: "../data/torus_skeleton_graph.obj"
+  graph_obj: "../data/crab_skeleton_graph.obj"
   
 general_params:
   verbose: true         # enable / disable the output (true / false)

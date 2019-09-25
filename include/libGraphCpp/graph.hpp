@@ -14,8 +14,6 @@
 /* TODO: check adjacency_list
  *       add linear triconnectivity implementation
  * 
- * 		- add cycle detection https://www.geeksforgeeks.org/print-all-the-cycles-in-an-undirected-graph/
- * 
  * 		- merge 	Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi adjacency_matrix)
  * 					Graph(Eigen::MatrixXd nodes, Eigen::Matrix<int, Eigen::Dynamic, 2> edges)
  */
@@ -33,6 +31,7 @@ namespace libgraphcpp
 		int num_nodes_;                                                     // set to N
 		int num_edges_;                                                     // set to M
 		double scale_;                                                      // used to trim the tree in simplify_tree 
+		double cycle_ratio_ = 10;
 		
 		// structures used for fast circulation through data
 		std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
@@ -53,7 +52,6 @@ namespace libgraphcpp
 		std::vector<int> bridges_;                                          // set of briges              : vector of edges ids
 		std::vector< std::vector<int> > cycles_;                            // set of cycles
 		
-
 		// internal functions: tools (defined at the bottom of the file)
 		inline void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 		inline void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
@@ -65,7 +63,6 @@ namespace libgraphcpp
 		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
 		inline void APUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<bool> & ap);
 		inline void bridgeUtil(int u, std::vector<bool> & visited, int disc[], int low[], std::vector<int> & parent, std::vector<int> & bridges);
-		inline void dfs_cycle(int u, int p, std::vector<int>& color, std::vector<int>& mark, std::vector<int>& par, int& cyclenumber) ;
 
 	public:
 
@@ -150,6 +147,8 @@ namespace libgraphcpp
 		{
 			if (nodes_.cols()!=3 || edges_.cols()!=2) {
 				std::cout << "Error: wrong graph dimensions" << std::endl;
+				std::cout << "nodes size: " << nodes_.rows() << " * " << nodes_.cols()<< std::endl;
+				std::cout << "edges size: " << edges_.rows() << " * " << edges_.cols()<< std::endl;
 				std::exit(1);
 			}
 
@@ -530,6 +529,187 @@ namespace libgraphcpp
 
 		}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		void symplify_graph()
+		{
+			std::cout << "test1\n";
+			// list all cycles
+			std::vector< std::vector< int > > cycle_basis;
+			std::vector< double > cycle_lengths;
+			has_cycles(cycle_basis, cycle_lengths);
+
+			std::cout << "test2\n";
+
+			// remove large cycles
+    		cycle_lengths.erase(
+      			std::remove_if(
+        			cycle_lengths.begin(), cycle_lengths.end(),
+        			[](int i) { return (cycle_lengths[i] > scale_/cycle_ratio_); }
+      			),
+      			cycle_lengths.end()
+    		);
+
+/*
+			// remove large cycles
+			std::cout << "cycle_lengths.size(): " << cycle_lengths.size() <<std::endl;
+			for(it2 = cycle_lengths.begin(); it2 != cycle_lengths.end();)
+			{ 
+				if(...)
+				{
+					it2 = cycle_lengths.erase(it2); 
+				}
+				else
+				{
+					++it2;
+				}
+			}
+			std::cout << "cycle_lengths.size(): " << cycle_lengths.size() <<std::endl;
+			for (int i=cycle_lengths.size(); i-- != 0;)
+				if (cycle_lengths[i] > scale_/cycle_ratio_) {
+					std::cout << "i: " << i <<std::endl;
+					cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin() + i);
+				}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			std::cout << "test3\n";
+			// find set of clustered nodes
+			std::vector< std::vector< int > > clusters;
+			bool clusters_found = false;
+			while (!clusters_found) {
+				std::vector <int> cluster_temp;
+				cluster_temp = cycle_basis[0];
+				cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin());
+
+
+
+
+			std::cout << "test4\n";
+
+
+
+
+
+
+
+
+
+
+
+
+				for(int i=0; i<cycle_basis.size(); )
+				{
+					// check for intersection
+					std::vector <int> v1, v2;
+					v1 = cluster_temp;
+					v2 = cycle_basis[i];
+
+					sort(v1.begin(), v1.end());
+					sort(v2.begin(), v2.end());
+
+					std::vector<int> v(v1.size() + v2.size()); 
+    				std::vector<int>::iterator it, st; 
+  
+					it = set_intersection(v1.begin(), 
+										  v1.end(), 
+										  v2.begin(), 
+										  v2.end(), 
+										  v.begin());
+
+
+					bool each_cycle_have_common_elements = false;
+					for (st = v.begin(); st != it; ++st)
+						each_cycle_have_common_elements = true;
+
+					if(each_cycle_have_common_elements) {
+						cluster_temp.insert( cluster_temp.end(), cycle_basis[i].begin(), cycle_basis[i].end() );
+						cycle_basis.erase(cycle_basis.begin(), cycle_basis.begin()+i);
+					} else {
+						++i;
+					}
+				}
+
+				if (cycle_basis.size() == 0)
+					clusters_found = true;
+			}
+
+
+			std::cout << "test5\n";
+			// merge nodes
+			// there is a problem as the clusters should be updated
+			for (int i=0; i<clusters.size(); i++)
+				merge_nodes(clusters[i]);
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		bool transform (double scale, Eigen::Vector3d move) 
 		{
 			nodes_ /= scale;
@@ -777,7 +957,7 @@ namespace libgraphcpp
 		}
 
 		// return a cycles basis (see: An Algorithm for Finding a Fundamental Set of Cycles of a Graph)
-		bool has_cycles(std::vector <std::vector<int>>& cycle_basis)
+		bool has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths)
 		{
 			graphOptions opts = opts_;
 			opts.verbose = false;
@@ -787,8 +967,14 @@ namespace libgraphcpp
 
 			for (int i=0; i<deleted_edges.rows(); i++) {
 				std::vector<int> cycle;
-				spanning_tree.dijkstra(deleted_edges(i, 0), deleted_edges(i, 1), cycle);
+				double cycle_length;
+				cycle_length = spanning_tree.dijkstra(deleted_edges(i, 0), deleted_edges(i, 1), cycle);
+
+
+				double deleted_edge_length = (spanning_tree.get_node(deleted_edges(i, 0)) - spanning_tree.get_node(deleted_edges(i, 1))).norm();
+				cycle_length = cycle_length + deleted_edge_length;
 				cycle_basis.push_back(cycle);
+				cycle_lengths.push_back(cycle_length);
 			}
 			
 			if (cycle_basis.size() != 0)
@@ -801,7 +987,8 @@ namespace libgraphcpp
 		bool has_cycles()
 		{
 			std::vector <std::vector <int>> cycles;
-			return has_cycles(cycles);
+			std::vector<double> cycle_lengths;
+			return has_cycles(cycles, cycle_lengths);
 		}
 
 		// accessors
