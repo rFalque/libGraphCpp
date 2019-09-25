@@ -1,11 +1,11 @@
 # Light C++ graph library
 
-We provide a simple and light graph library for visualizing and analyzing graph structures. The library is inspired by [Libigl](https://github.com/libigl/libigl), following its design principle and applied for graphs. The graphs are stored as `.obj` files (not all other formats support edges) which can be easily edited in [Blender](https://www.blender.org/).
+We provide a simple and light graph library for visualizing and analyzing undirected graph structures. The library is inspired by [Libigl](https://github.com/libigl/libigl), following its design principle and applied for graphs. The graphs are stored as `.obj` files (not all other formats support edges) which can be easily edited in [Blender](https://www.blender.org/).
 
 ![Graph visualization](./images/graph_library.png "light C++ graph library")
 
 ## Installation:
-First, make sure [Eigen](https://eigen.tuxfamily.org/) and [yaml-cpp](https://github.com/jbeder/yaml-cpp/wiki/Tutorial) are installed:
+The only dependencies are [Eigen](https://eigen.tuxfamily.org/) and [yaml-cpp](https://github.com/jbeder/yaml-cpp/wiki/Tutorial) which can be installed as follows:
 
 ```bash
 sudo apt-get update
@@ -31,13 +31,15 @@ make
 ```
 
 ## Features:
-* graph instanciation from nodes list and edges list or adjacency matrix ('Eigen::MatrixXd' for nodes position and 'Eigen::MatrixXi' for edges definition)
+* graph instanciation from nodes list and edges list or adjacency matrix (`Eigen::MatrixXd` for nodes position and `Eigen::MatrixXi` for edges definition)
 * load / save graphs as `.obj` files
 * graph visualization (using [polyscope](http://polyscope.run/))
 * adding / removing / merging nodes
 * adding / removing edges
 * edge collapsing
 * transformation into a tree, and basic trimming
+* fundamental cycle basis
+* graph simplification based on cycles
 * connectivity (linear time)
 * biconnectivity (linear time)
 * triconnectivity (quadratic time)
@@ -49,7 +51,7 @@ make
 
 ## Design principles:
 * headers only library
-* simple structures for storing the graph (Eigen::Matrix) and adjacency lists (std::vector)
+* simple structures for storing the graph (`Eigen::Matrix`) and adjacency lists (`std::vector`)
 * easy to modify
 
 ## Graph visualization:
