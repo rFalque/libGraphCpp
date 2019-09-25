@@ -63,7 +63,7 @@ namespace libgraphcpp
             }
 
             void add_graph(const Eigen::MatrixXd & nodes,
-                        const Eigen::MatrixXi & edges) {
+                           const Eigen::MatrixXi & edges) {
                 polyscope::registerPointCloud(graphNodes_, nodes);
                 polyscope::getPointCloud(graphNodes_)->pointColor = glm::vec3{1, 0, 0};
                 polyscope::registerCurveNetwork(graphEdges_, nodes, edges);
@@ -71,12 +71,16 @@ namespace libgraphcpp
             }
 
             void add_color(const Eigen::MatrixXd & nodes_colors,
-                        const Eigen::MatrixXd & edges_colors,
-                        std::string color_name) {
-                if (nodes_colors.rows() != 0)
+                           const Eigen::MatrixXd & edges_colors,
+                           std::string color_name) {
+                if (nodes_colors.rows() != 0){
                     polyscope::getPointCloud(graphNodes_)->addColorQuantity(color_name, nodes_colors);
-                if (edges_colors.rows() != 0)
+                    polyscope::getPointCloud(graphNodes_)->getQuantity(color_name)->setEnabled(true);
+                }
+                if (edges_colors.rows() != 0){
                     polyscope::getCurveNetwork(graphEdges_)->addEdgeColorQuantity(color_name, edges_colors);
+                    polyscope::getCurveNetwork(graphEdges_)->getQuantity(color_name)->setEnabled(true);
+                }
             }
 
             void show() {
