@@ -62,6 +62,9 @@ int main(int argc, char* argv[])
     std::vector <std::vector<int>> cycle_basis;
     std::vector <double> cycle_length;
 
+
+    graph.remove_flat_triangles();
+
     std::cout << "graph has cycles: " << graph.has_cycles(cycle_basis, cycle_length) << std::endl;
     for (int i=0; i<cycle_basis.size(); i++)
     {
@@ -69,6 +72,7 @@ int main(int argc, char* argv[])
         for (int node_id : cycle_basis[i])
             std::cout << node_id << " ";
         std::cout << std::endl;
+
     }
 
     //graph.make_tree();

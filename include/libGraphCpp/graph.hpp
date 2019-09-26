@@ -31,7 +31,8 @@ namespace libgraphcpp
 		int num_nodes_;                                                     // set to N
 		int num_edges_;                                                     // set to M
 		double scale_;                                                      // used to trim the tree in simplify_tree 
-		double cycle_ratio_ = 3;
+		double cycle_ratio_ = 2;
+        double triangle_ratio_ = 0.9;
 		
 		// structures used for fast circulation through data
 		std::vector< std::vector<int> > adjacency_list_;                    // contains for each nodes, its nodes neighbors
@@ -316,6 +317,10 @@ namespace libgraphcpp
 
 		bool merge_nodes(std::vector<int> nodes)
 		{
+			// make sure there is no duplicates
+			sort( nodes.begin(), nodes.end() );
+			nodes.erase( unique( nodes.begin(), nodes.end() ), nodes.end() );
+
 			// store connected elements first
 			std::vector<int> neighbours;
 			for (int node : nodes)
@@ -554,6 +559,22 @@ namespace libgraphcpp
 
 				for(int i=0; i<cycle_basis.size(); )
 				{
+                    /*
+                    std::cout << "cluster_temp: ";
+                    for (int node: cluster_temp)
+                        std::cout << node << " ";
+                    std::cout << std::endl;
+
+                    std::cout << "cycle_basis[i]: ";
+                    for (int node: cycle_basis[i])
+                        std::cout << node << " ";
+                    std::cout << std::endl;
+
+                    int a;
+                    std::cin >> a;
+                    */
+
+
 					// check for intersection
 					std::vector <int> v1, v2;
 					v1 = cluster_temp;
@@ -571,7 +592,6 @@ namespace libgraphcpp
 										  v2.end(), 
 										  v.begin());
 
-
 					bool each_cycle_have_common_elements = false;
 					for (st = v.begin(); st != it; ++st)
 						each_cycle_have_common_elements = true;
@@ -579,6 +599,7 @@ namespace libgraphcpp
 					if(each_cycle_have_common_elements) {
 						cluster_temp.insert( cluster_temp.end(), cycle_basis[i].begin(), cycle_basis[i].end() );
 						cycle_basis.erase(cycle_basis.begin()+i);
+                        i = 0;
 					} else {
 						++i;
 					}
@@ -593,8 +614,19 @@ namespace libgraphcpp
 					clusters_found = true;
 			}
 
+			std::cout << "\n\n\nProgress: list of clusters to merge:\n";
+			for (int i=0; i<clusters.size(); i++) {
+				std::cout << "cluster["<<i<<"]: ";
+				for (int node: clusters[i])
+					std::cout << node << " ";
+				std::cout << std::endl;
+			}
+
+			
 			// merge nodes
 			for (int i=0; i<clusters.size(); i++) {
+				std::vector<int> empty_set;
+				plot_and_highlight(clusters[i], empty_set);
 				merge_nodes(clusters[i]);
 				// each time a node is removed, the other lists should be updated to avoid deleting the wrong nodes
 				for (int j=i+1; j<clusters.size(); j++)
@@ -616,6 +648,47 @@ namespace libgraphcpp
 					}
 			}
 		}
+
+        void remove_flat_triangles()
+        {
+			// list all cycles
+			std::vector< std::vector< int > > cycle_basis;
+			std::vector< double > cycle_lengths;
+			has_cycles(cycle_basis, cycle_lengths);
+
+            // go through each cycles
+            for (int i=0; i<cycle_basis.size(); i++) {
+                if (cycle_basis[i].size() == 3) {
+                    int edge_1 = find_edge_from_nodes(cycle_basis[i][0], cycle_basis[i][1]);
+                    int edge_2 = find_edge_from_nodes(cycle_basis[i][1], cycle_basis[i][2]);
+                    int edge_3 = find_edge_from_nodes(cycle_basis[i][2], cycle_basis[i][0]);
+
+                    std::vector<std::pair<double, int>> triangle_distance(3);
+                    triangle_distance[0] = std::make_pair( edges_length_(edge_1), edge_1);
+                    triangle_distance[1] = std::make_pair( edges_length_(edge_2), edge_2);
+                    triangle_distance[2] = std::make_pair( edges_length_(edge_3), edge_3);
+
+                    sort(triangle_distance.begin(), triangle_distance.end());
+
+                    if (triangle_distance[2].first > (triangle_distance[0].first + triangle_distance[1].first)*triangle_ratio_)
+                    {
+                        /*
+                        std::cout << "triangle_distance[0].first: " << triangle_distance[0].first <<std::endl;
+                        std::cout << "triangle_distance[1].first: " << triangle_distance[1].first <<std::endl;
+                        std::cout << "triangle_distance[2].first: " << triangle_distance[2].first <<std::endl;
+
+                        std::cout << "sum 1 +2: " << (triangle_distance[0].first + triangle_distance[1].first)*0.9 <<std::endl;
+                        
+                        std::vector <int> empty;
+                        empty.push_back(triangle_distance[2].second);
+                        plot_and_highlight(cycle_basis[i], empty);
+                        */
+                        remove_edge(triangle_distance[2].second);
+                    }
+                        
+                }
+            }
+        }
 
 		bool transform (double scale, Eigen::Vector3d move) 
 		{
@@ -908,6 +981,17 @@ namespace libgraphcpp
 		Eigen::Vector2i get_edge(int i) { return edges_.row(i); }
 		std::vector <int> get_adjacency_list(int i) { return adjacency_list_[i]; }
 		int get_adjacency_list(int i, int j) { return adjacency_list_[i][j]; }
+
+        int find_edge_from_nodes(int node_1, int node_2)
+        {
+            for (int i=0; i<num_edges_; i++) {
+                if (edges_(i, 0) == node_1 && edges_(i, 1) == node_2)
+                    return i;
+                if (edges_(i, 0) == node_2 && edges_(i, 1) == node_1)
+                    return i;
+            }
+            return -1;
+        }
 		
 		/* TO BE REMOVED? */
 
