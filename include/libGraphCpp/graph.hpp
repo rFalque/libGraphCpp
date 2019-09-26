@@ -624,6 +624,9 @@ namespace libgraphcpp
 			}
 		}
 
+        // the listing of the triangles should be performed differently
+        // -> listing the fundamental cycles basis can be inacurate
+        // -> or replace by the minimal cycle basis
         void remove_flat_triangles()
         {
 			// list all cycles
