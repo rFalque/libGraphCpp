@@ -559,22 +559,6 @@ namespace libgraphcpp
 
 				for(int i=0; i<cycle_basis.size(); )
 				{
-                    /*
-                    std::cout << "cluster_temp: ";
-                    for (int node: cluster_temp)
-                        std::cout << node << " ";
-                    std::cout << std::endl;
-
-                    std::cout << "cycle_basis[i]: ";
-                    for (int node: cycle_basis[i])
-                        std::cout << node << " ";
-                    std::cout << std::endl;
-
-                    int a;
-                    std::cin >> a;
-                    */
-
-
 					// check for intersection
 					std::vector <int> v1, v2;
 					v1 = cluster_temp;
@@ -613,15 +597,6 @@ namespace libgraphcpp
 				if (cycle_basis.size() == 0)
 					clusters_found = true;
 			}
-
-			std::cout << "\n\n\nProgress: list of clusters to merge:\n";
-			for (int i=0; i<clusters.size(); i++) {
-				std::cout << "cluster["<<i<<"]: ";
-				for (int node: clusters[i])
-					std::cout << node << " ";
-				std::cout << std::endl;
-			}
-
 			
 			// merge nodes
 			for (int i=0; i<clusters.size(); i++) {
@@ -671,20 +646,7 @@ namespace libgraphcpp
                     sort(triangle_distance.begin(), triangle_distance.end());
 
                     if (triangle_distance[2].first > (triangle_distance[0].first + triangle_distance[1].first)*triangle_ratio_)
-                    {
-                        /*
-                        std::cout << "triangle_distance[0].first: " << triangle_distance[0].first <<std::endl;
-                        std::cout << "triangle_distance[1].first: " << triangle_distance[1].first <<std::endl;
-                        std::cout << "triangle_distance[2].first: " << triangle_distance[2].first <<std::endl;
-
-                        std::cout << "sum 1 +2: " << (triangle_distance[0].first + triangle_distance[1].first)*0.9 <<std::endl;
-                        
-                        std::vector <int> empty;
-                        empty.push_back(triangle_distance[2].second);
-                        plot_and_highlight(cycle_basis[i], empty);
-                        */
                         remove_edge(triangle_distance[2].second);
-                    }
                         
                 }
             }
