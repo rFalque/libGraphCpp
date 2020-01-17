@@ -169,7 +169,8 @@ namespace libgraphcpp
 			// set up edges_length
 			edges_length_ = Eigen::VectorXd::Zero(num_edges_);
 			for (int i=0; i<num_edges_; i++) {
-				if ( (edges_(i, 0) >= num_nodes_) || (edges_(i, 1) >= num_nodes_) ) {
+				if ( (edges_(i, 0) >= num_nodes_) || (edges_(i, 1) >= num_nodes_) ||
+					 (edges_(i, 0) < 0) || (edges_(i, 1) < 0) ) {
 					std::cout << "\nLibGraphCpp error: wrong edge given in the class initialization" << std::endl;
 					std::cout << "the edge: (" << edges_(i, 0) << ", " << edges_(i, 1) << ") does not works for " << num_nodes_ << " nodes." << std::endl;
 					std::exit(EXIT_FAILURE);
