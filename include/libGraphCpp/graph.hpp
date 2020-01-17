@@ -147,10 +147,10 @@ namespace libgraphcpp
 		bool init()
 		{
 			if (nodes_.cols()!=3 || edges_.cols()!=2) {
-				std::cout << "Error: wrong graph dimensions" << std::endl;
+				std::cout << "\nLibGraphCpp error: wrong graph dimensions in the class initialization" << std::endl;
 				std::cout << "nodes size: " << nodes_.rows() << " * " << nodes_.cols()<< std::endl;
 				std::cout << "edges size: " << edges_.rows() << " * " << edges_.cols()<< std::endl;
-				std::exit(1);
+				std::exit(EXIT_FAILURE);
 			}
 
 			one_cut_vertices_.clear();
@@ -168,8 +168,14 @@ namespace libgraphcpp
 
 			// set up edges_length
 			edges_length_ = Eigen::VectorXd::Zero(num_edges_);
-			for (int i=0; i<num_edges_; i++)
+			for (int i=0; i<num_edges_; i++) {
+				if ( (edges_(i, 0) >= num_nodes_) || (edges_(i, 1) >= num_nodes_) ) {
+					std::cout << "\nLibGraphCpp error: wrong edge given in the class initialization" << std::endl;
+					std::cout << "the edge: (" << edges_(i, 0) << ", " << edges_(i, 1) << ") does not works for " << num_nodes_ << " nodes." << std::endl;
+					std::exit(EXIT_FAILURE);
+				}
 				edges_length_(i) = (nodes_.row(edges_(i,0)) - nodes_.row(edges_(i,1)) ).norm();
+			}
 			
 			// set up the adjacency list
 			set_adjacency_lists();
