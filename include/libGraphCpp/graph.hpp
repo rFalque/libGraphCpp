@@ -93,15 +93,16 @@ namespace libgraphcpp
 				adjacency_matrix = edges_input;
 
 				if (adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()) {
+					std::cout << "\nLibGraphCpp error: wrong input size in the class definition\n";
+					std::cout << "Error thrown while assessing: adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
 					std::cout << "size of the nodes matrix: " << nodes.rows() << ", " << nodes.cols() << "\n";
 					std::cout << "size of the edges matrix: " << edges_input.rows() << ", " << edges_input.cols() << "\n";
-					std::cout << "Error: wrong input size when assessing adjacency_matrix.rows() != adjacency_matrix.cols() || adjacency_matrix.rows() != nodes.rows()\n ";
-					std::exit(0);
+					std::exit(EXIT_FAILURE);
 				}
 				if (adjacency_matrix.transpose() != adjacency_matrix)
 				{
-					std::cout << "Error: the adjacency_matrix should be symmetric\n ";
-					std::exit(0);
+					std::cout << "\nLibGraphCpp error: the adjacency_matrix should be symmetric\n ";
+					std::exit(EXIT_FAILURE);
 				}
 
 				nodes_ = nodes;
