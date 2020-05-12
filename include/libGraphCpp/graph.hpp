@@ -353,6 +353,17 @@ namespace libgraphcpp
 				remove_node(node);
 		}
 
+		bool update_nodes(Eigen::MatrixXd new_nodes)
+		{
+			if (nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols()) {
+				nodes_ = new_nodes;
+			} else {
+				std::cout << "Error: wrong dimension:\n"; 
+				std::cout << "nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols() returned False \n ";
+				std::exit(0);
+			}
+		}
+
 		bool add_edge(Eigen::Vector2i edge)
 		{
 			// add node
@@ -375,6 +386,7 @@ namespace libgraphcpp
 			return true;
 		}
 
+		// replace an edge and the two connected nodes by a single node
 		bool collapse_edge(int edge_id)
 		{
 			// get nodes_id:
@@ -965,7 +977,7 @@ namespace libgraphcpp
             return -1;
         }
 		
-		/* TO BE REMOVED? */
+		/* TO BE REMOVED? This apply just for directional graph */
 
 		int edge_source(int i)
 		{
