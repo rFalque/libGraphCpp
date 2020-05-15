@@ -5,6 +5,7 @@
  **/
 
 #include "libGraphCpp/graph.hpp"
+#include "libGraphCpp/plotGraph.hpp"
 
 #include <yaml-cpp/yaml.h>
 
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 
 
     std::cout << "Progress: plot graph\n";
-    graph.plot();
+    visualization::plot(graph);
 
 
     std::cout << "Progress: test connectivity\n";
@@ -47,11 +48,11 @@ int main(int argc, char* argv[])
     std::sort( vertices_to_highlight.begin(), vertices_to_highlight.end() ); // move that in the library?
     vertices_to_highlight.erase( std::unique( vertices_to_highlight.begin(), vertices_to_highlight.end() ), vertices_to_highlight.end() );
 
-    graph.plot_and_highlight(vertices_to_highlight, bridges);
+    visualization::plot_and_highlight(graph, vertices_to_highlight, bridges);
     
 
     std::cout << "Progress: plot connectivity (from the library)\n";
-    graph.plot_connectivity();
+    visualization::plot_connectivity(graph);
 
 
     std::cout << "Progress: simplify graph\n";
@@ -73,7 +74,7 @@ int main(int argc, char* argv[])
 
     //graph.make_tree();
     graph.symplify_graph();
-    graph.plot();
+    visualization::plot(graph);
 
     std::cout << "graph has cycles: " << graph.has_cycles() << std::endl;
 

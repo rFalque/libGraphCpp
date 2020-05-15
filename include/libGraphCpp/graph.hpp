@@ -7,8 +7,6 @@
 
 #include "readGraphOBJ.hpp"
 #include "writeGraphOBJ.hpp"
-//#include "plotGraph.hpp"
-#include "polyscopeWrapper.hpp"
 #include "graphOptions.hpp"
 
 
@@ -208,88 +206,6 @@ namespace libgraphcpp
 				adjacency_edge_list_[edges_(i, 0)].push_back(i);
 				adjacency_edge_list_[edges_(i, 1)].push_back(i);
 			}
-		}
-
-		bool plot() 
-		{
-			std::string graph_name = "graph";
-			plot(graph_name);
-			visualization::clear_structures();
-		}
-
-		bool plot(std::string graph_name)
-		{
-			visualization::init();
-			visualization::add_graph(nodes_, edges_, graph_name);
-            visualization::show();
-        	return true;
-		}
-
-		bool plot_connectivity() 
-		{
-			connectivity_tests();
-			Eigen::MatrixXd empty; 			// used to pass empty content
-			Eigen::MatrixXd highlights;
-
-			visualization::init();
-			visualization::clear_structures();
-			
-			visualization::add_graph(nodes_, edges_, "connectivity");
-
-			// highlight one-cut-vertices
-			return_colors_highlight(one_cut_vertices_, nodes_.rows(), highlights);
-			visualization::add_color_to_graph(highlights, empty, "connectivity", "one-cut-vertices");
-
-			// highlight two-cut-vertices
-			std::vector <int> temp;
-			for (std::pair<int, int> p: two_cut_vertices_)
-			{
-				temp.push_back(p.first);
-				temp.push_back(p.second);
-			}
-			return_colors_highlight(temp, nodes_.rows(), highlights);
-			visualization::add_color_to_graph(highlights, empty, "connectivity", "two-cut-vertices");
-
-			// highlight bridges
-			return_colors_highlight(bridges_, edges_.rows(), highlights);
-
-			visualization::add_color_to_graph(empty, highlights, "connectivity", "bridges");
-
-            visualization::show();
-			visualization::clear_structures();
-
-			return true;
-		}
-
-		bool plot_and_highlight(std::vector<int> node_list, std::vector<int> edge_list)
-		{
-			// set default_values 
-			Eigen::MatrixXd nodes_colors = Eigen::MatrixXd::Constant(nodes_.rows(),3,0.1);
-			nodes_colors.col(0) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 1.0);
-			nodes_colors.col(1) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 0.1);
-			nodes_colors.col(2) = Eigen::MatrixXd::Constant(nodes_.rows(),1, 0.1);
-
-			Eigen::MatrixXd edges_colors = Eigen::MatrixXd::Constant(edges_.rows(),3,0.1);
-			edges_colors.col(0) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
-			edges_colors.col(1) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
-			edges_colors.col(2) = Eigen::MatrixXd::Constant(edges_.rows(),1, 0.1);
-
-			for (int node: node_list) {
-				nodes_colors(node, 0) = 0.1;
-				nodes_colors(node, 2) = 1.0;
-			}
-
-			for (int edge: edge_list) {
-				edges_colors(edge, 0) = 0.1;
-				edges_colors(edge, 2) = 1.0;
-			}
-
-			visualization::init();
-			visualization::add_graph(nodes_, edges_, "graph");
-			visualization::add_color_to_graph(nodes_colors, edges_colors, "graph", "highlight");
-            visualization::show();
-
-			return true;
 		}
 
 		bool print_isolated_vertices()
@@ -640,7 +556,6 @@ namespace libgraphcpp
 			// merge nodes
 			for (int i=0; i<clusters.size(); i++) {
 				std::vector<int> empty_set;
-				plot_and_highlight(clusters[i], empty_set);
 				merge_nodes(clusters[i]);
 				// each time a node is removed, the other lists should be updated to avoid deleting the wrong nodes
 				for (int j=i+1; j<clusters.size(); j++)
@@ -1064,17 +979,6 @@ namespace libgraphcpp
 		auto it = std::find(A.begin(), A.end(), a);
 		return it != A.end();
 	}
-
-	bool Graph::return_colors_highlight(std::vector<int> element_to_highlight, int size_array, Eigen::MatrixXd & colors)
-	{
-		colors = Eigen::MatrixXd::Constant(size_array,3,0.1);
-
-		for (int element: element_to_highlight) {
-			colors(element, 0) = 0.1;
-			colors(element, 1) = 0.1;
-			colors(element, 2) = 1.0;
-		}
-	};
 
 	// used for checking connectivity:
 	//
