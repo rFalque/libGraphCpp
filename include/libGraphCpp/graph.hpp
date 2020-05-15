@@ -7,7 +7,8 @@
 
 #include "readGraphOBJ.hpp"
 #include "writeGraphOBJ.hpp"
-#include "plotGraph.hpp"
+//#include "plotGraph.hpp"
+#include "polyscopeWrapper.hpp"
 #include "graphOptions.hpp"
 
 
@@ -211,21 +212,33 @@ namespace libgraphcpp
 
 		bool plot() 
 		{
-			return polyscope_plot(nodes_, edges_);
+			std::string graph_name = "graph";
+			plot(graph_name);
+			visualization::clear_structures();
+		}
+
+		bool plot(std::string graph_name)
+		{
+			visualization::init();
+			visualization::add_graph(nodes_, edges_, graph_name);
+            visualization::show();
+        	return true;
 		}
 
 		bool plot_connectivity() 
 		{
 			connectivity_tests();
 			Eigen::MatrixXd empty; 			// used to pass empty content
-			Eigen::MatrixXd highlight;
+			Eigen::MatrixXd highlights;
 
-			GraphVisualization viz;
-			viz.add_graph(nodes_, edges_);
+			visualization::init();
+			visualization::clear_structures();
+			
+			visualization::add_graph(nodes_, edges_, "connectivity");
 
 			// highlight one-cut-vertices
-			return_colors_highlight(one_cut_vertices_, nodes_.rows(), highlight);
-			viz.add_color(highlight, empty, "one-cut-vertices");
+			return_colors_highlight(one_cut_vertices_, nodes_.rows(), highlights);
+			visualization::add_color_to_graph(highlights, empty, "connectivity", "one-cut-vertices");
 
 			// highlight two-cut-vertices
 			std::vector <int> temp;
@@ -234,14 +247,17 @@ namespace libgraphcpp
 				temp.push_back(p.first);
 				temp.push_back(p.second);
 			}
-			return_colors_highlight(temp, nodes_.rows(), highlight);
-			viz.add_color(highlight, empty, "two-cut-vertices");
+			return_colors_highlight(temp, nodes_.rows(), highlights);
+			visualization::add_color_to_graph(highlights, empty, "connectivity", "two-cut-vertices");
 
 			// highlight bridges
-			return_colors_highlight(bridges_, edges_.rows(), highlight);
-			viz.add_color(empty, highlight, "bridges");
+			return_colors_highlight(bridges_, edges_.rows(), highlights);
 
-			viz.show();
+			visualization::add_color_to_graph(empty, highlights, "connectivity", "bridges");
+
+            visualization::show();
+			visualization::clear_structures();
+
 			return true;
 		}
 
@@ -268,7 +284,10 @@ namespace libgraphcpp
 				edges_colors(edge, 2) = 1.0;
 			}
 
-			polyscope_plot_with_color (nodes_, edges_, nodes_colors, edges_colors);
+			visualization::init();
+			visualization::add_graph(nodes_, edges_, "graph");
+			visualization::add_color_to_graph(nodes_colors, edges_colors, "graph", "highlight");
+            visualization::show();
 
 			return true;
 		}
@@ -354,6 +373,17 @@ namespace libgraphcpp
 				remove_node(node);
 		}
 
+		bool update_nodes(Eigen::MatrixXd new_nodes)
+		{
+			if (nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols()) {
+				nodes_ = new_nodes;
+			} else {
+				std::cout << "Error: wrong dimension:\n"; 
+				std::cout << "nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols() returned False \n ";
+				std::exit(0);
+			}
+		}
+
 		bool add_edge(Eigen::Vector2i edge)
 		{
 			// add node
@@ -376,6 +406,7 @@ namespace libgraphcpp
 			return true;
 		}
 
+		// replace an edge and the two connected nodes by a single node
 		bool collapse_edge(int edge_id)
 		{
 			// get nodes_id:
@@ -966,7 +997,7 @@ namespace libgraphcpp
             return -1;
         }
 		
-		/* TO BE REMOVED? */
+		/* TO BE REMOVED? This apply just for directional graph */
 
 		int edge_source(int i)
 		{

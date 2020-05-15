@@ -6,28 +6,24 @@
 
 #include "libGraphCpp/graph.hpp"
 
-//#include "libGraphCpp/readGraphOBJ.hpp"
-//#include "libGraphCpp/writeGraphOBJ.hpp"
-//#include "libGraphCpp/plotGraph.hpp"
-//#include "libGraphCpp/graphOptions.hpp"
-
-
 #include <yaml-cpp/yaml.h>
 
 int main(int argc, char* argv[])
 {
-    // create a graph
+    std::cout << "Progress: load options\n";
     graphOptions opts;
     opts.loadYAML("../config.yaml");
 
+
+    std::cout << "Progress: load graph\n";
     libgraphcpp::Graph graph(opts.path_graph_obj, opts);
 
 
-    // plot the graph
+    std::cout << "Progress: plot graph\n";
     graph.plot();
 
 
-    // perform connectivity tests
+    std::cout << "Progress: test connectivity\n";
     bool is_connected, is_biconnected, is_triconnected, has_bridges;
 
     std::vector<int> one_cut_vertices;
@@ -40,7 +36,7 @@ int main(int argc, char* argv[])
     has_bridges = graph.has_bridges(bridges);
 
 
-    // highlight some specific nodes and edges:
+    std::cout << "Progress: plot connectivity (example in the code)\n";
     std::vector<int> vertices_to_highlight;
     for (int v: one_cut_vertices)
         vertices_to_highlight.push_back(v);
@@ -54,11 +50,11 @@ int main(int argc, char* argv[])
     graph.plot_and_highlight(vertices_to_highlight, bridges);
     
 
-    // plot the overall connectivity
+    std::cout << "Progress: plot connectivity (from the library)\n";
     graph.plot_connectivity();
 
 
-    // turn the graph into a tree
+    std::cout << "Progress: simplify graph\n";
     std::vector <std::vector<int>> cycle_basis;
     std::vector <double> cycle_length;
 
@@ -79,12 +75,9 @@ int main(int argc, char* argv[])
     graph.symplify_graph();
     graph.plot();
 
-    
     std::cout << "graph has cycles: " << graph.has_cycles() << std::endl;
 
-
-
-    // save the graph
+    std::cout << "Progress: write output\n";
     graph.save("../data/output.obj");
     std::cout << "graph saved at : ../data/output.obj\n";
 
