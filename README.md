@@ -1,4 +1,4 @@
-# Light C++ graph library
+# Light C++11 graph library
 
 We provide a simple and light graph library for visualizing and analyzing undirected graph structures. The library is inspired by [Libigl](https://github.com/libigl/libigl), following its design principle and applied for graphs. The graphs are stored as `.obj` files (not all other formats support edges) which can be easily edited in [Blender](https://www.blender.org/).
 
