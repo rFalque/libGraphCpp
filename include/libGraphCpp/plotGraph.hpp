@@ -17,7 +17,7 @@
 
 namespace visualization {
 
-    void add_graph(libgraphcpp::Graph graph, std::string graph_name) {
+    inline void add_graph(libgraphcpp::Graph graph, std::string graph_name) {
         Eigen::MatrixXd nodes = graph.get_nodes();
         Eigen::MatrixXi edges = graph.get_edges();
 
@@ -25,22 +25,22 @@ namespace visualization {
         visualization::add_graph(nodes, edges, graph_name);
     };
 
-    void add_graph(libgraphcpp::Graph graph) {
+    inline void add_graph(libgraphcpp::Graph graph) {
         visualization::add_graph(graph, "graph");
     };
 
-    void plot(libgraphcpp::Graph graph, std::string graph_name) {
+    inline void plot(libgraphcpp::Graph graph, std::string graph_name) {
         visualization::add_graph(graph, graph_name);
         visualization::show();
         visualization::clear_structures();
     };
 
-    void plot(libgraphcpp::Graph graph) {
+    inline void plot(libgraphcpp::Graph graph) {
         visualization::plot(graph, "graph");
     };
 
 
-    void return_colors_highlight(std::vector<int> element_to_highlight, int size_array, Eigen::MatrixXd & colors) {
+    inline void return_colors_highlight(std::vector<int> element_to_highlight, int size_array, Eigen::MatrixXd & colors) {
         colors = Eigen::MatrixXd::Constant(size_array,3,0.1);
 
         for (int element: element_to_highlight) {
@@ -50,7 +50,7 @@ namespace visualization {
         }
     };
 
-    void plot_connectivity(libgraphcpp::Graph graph) {
+    inline void plot_connectivity(libgraphcpp::Graph graph) {
 
         graph.connectivity_tests();
         Eigen::MatrixXd empty; 			// used to pass empty content
@@ -87,7 +87,7 @@ namespace visualization {
         visualization::clear_structures();
     };
 
-    void plot_and_highlight(libgraphcpp::Graph graph, std::vector<int> node_list, std::vector<int> edge_list)
+    inline void plot_and_highlight(libgraphcpp::Graph graph, std::vector<int> node_list, std::vector<int> edge_list)
     {
         visualization::init();
         visualization::clear_structures();

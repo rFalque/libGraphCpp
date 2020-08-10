@@ -66,22 +66,22 @@ namespace libgraphcpp
 
 	public:
 		// creators
-		Graph(std::string file_name);
-		Graph(std::string file_name, graphOptions opts);
-		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges);
-		Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts);
+		inline Graph(std::string file_name);
+		inline Graph(std::string file_name, graphOptions opts);
+		inline Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges);
+		inline Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts);
 
 		// destructor
-		~Graph(){};
+		inline ~Graph(){};
 
 		// initialisation of the private variables
-		bool init();
-		void set_adjacency_lists();
+		inline bool init();
+		inline void set_adjacency_lists();
 
 
 		// save graph as OBJ file
-		void save(std::string output_file);
-		bool print_isolated_vertices();
+		inline void save(std::string output_file);
+		inline bool print_isolated_vertices();
 
 
 		// accessors
@@ -97,46 +97,46 @@ namespace libgraphcpp
 
 
 		// modifiers for nodes
-		bool add_node(Eigen::Vector3d node, std::vector<int> neighbours);
-		bool remove_node(int nodeToRemove);
-		bool merge_nodes(std::vector<int> nodes);
-		bool update_node(int node_id, Eigen::Vector3d new_node);
-		bool update_nodes(Eigen::MatrixXd new_nodes);
+		inline bool add_node(Eigen::Vector3d node, std::vector<int> neighbours);
+		inline bool remove_node(int nodeToRemove);
+		inline bool merge_nodes(std::vector<int> nodes);
+		inline bool update_node(int node_id, Eigen::Vector3d new_node);
+		inline bool update_nodes(Eigen::MatrixXd new_nodes);
 
 		// modifiers for edges
-		bool add_edge(Eigen::Vector2i edge);
-		bool remove_edge(int edgeToRemove);
-		bool collapse_edge(int edge_id);
+		inline bool add_edge(Eigen::Vector2i edge);
+		inline bool remove_edge(int edgeToRemove);
+		inline bool collapse_edge(int edge_id);
 
 
 		/* CONNECTIVITY TESTS */
-		bool connectivity_tests();
-		bool is_connected();
-		bool is_biconnected(std::vector<int>& one_cut_vertices);
-		bool is_biconnected();
-		bool is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices);
-		bool is_triconnected();
-		bool has_bridges(std::vector<int>& bridges);
-		bool has_bridges();
-		bool has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths);
-		bool has_cycles();
+		inline bool connectivity_tests();
+		inline bool is_connected();
+		inline bool is_biconnected(std::vector<int>& one_cut_vertices);
+		inline bool is_biconnected();
+		inline bool is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices);
+		inline bool is_triconnected();
+		inline bool has_bridges(std::vector<int>& bridges);
+		inline bool has_bridges();
+		inline bool has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths);
+		inline bool has_cycles();
 
 
 		// graph manipulation
-		std::vector<std::vector <int> > make_tree(Eigen::MatrixXi& deleted_edges);
-		std::vector<std::vector <int> > make_tree();
-		void simplify_tree();
-		void symplify_graph();
-        void remove_flat_triangles();
-		bool transform (double scale, Eigen::Vector3d move);
-		double dijkstra(int source, int target, std::vector<int>& node_path);
-		double dijkstra(int source, int target);
+		inline std::vector<std::vector <int> > make_tree(Eigen::MatrixXi& deleted_edges);
+		inline std::vector<std::vector <int> > make_tree();
+		inline void simplify_tree();
+		inline void symplify_graph();
+        inline void remove_flat_triangles();
+		inline bool transform (double scale, Eigen::Vector3d move);
+		inline double dijkstra(int source, int target, std::vector<int>& node_path);
+		inline double dijkstra(int source, int target);
 
 
 		/* TO BE REMOVED? This apply only for directional graph */
-		int edge_source(int i);
-		int edge_target(int i);
-		void swap_edge(int i);
+		inline int edge_source(int i);
+		inline int edge_target(int i);
+		inline void swap_edge(int i);
 
 	};
 
@@ -144,7 +144,7 @@ namespace libgraphcpp
 
 
 
-	Graph::Graph(std::string file_name)
+	inline Graph::Graph(std::string file_name)
 	{
 		readGraphOBJ(file_name, nodes_, edges_);
 
@@ -152,12 +152,12 @@ namespace libgraphcpp
 	};
 
 	// overload with options
-	Graph::Graph(std::string file_name, graphOptions opts) : Graph(file_name) 
+	inline Graph::Graph(std::string file_name, graphOptions opts) : Graph(file_name) 
 	{
 		opts_ = opts;
 	};
 
-	Graph::Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges)
+	inline Graph::Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges)
 	{
 		// test if edges is m by 2 (explicit edges) or n by n (adjacency matrix)
 		if ( edges.cols() == 2 )
@@ -207,13 +207,13 @@ namespace libgraphcpp
 	};
 
 	// overload with options
-	Graph::Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts) : Graph(nodes, edges) 
+	inline Graph::Graph(Eigen::MatrixXd nodes, Eigen::MatrixXi edges, graphOptions opts) : Graph(nodes, edges) 
 	{
 		opts_ = opts;
 	};
 
 	// initialisation of the private variables
-	bool Graph::init()
+	inline bool Graph::init()
 	{
 		if (nodes_.cols()!=3 || edges_.cols()!=2) {
 			std::cout << "\nLibGraphCpp error: wrong graph dimensions in the class initialization" << std::endl;
@@ -253,7 +253,7 @@ namespace libgraphcpp
 		return true;
 	};
 
-	void Graph::set_adjacency_lists()
+	inline void Graph::set_adjacency_lists()
 	{
 		// TODO: - the if statement should be removed for undirected graphs as they are not needed
 		//       - is the adjacency_edge_list_ needed?
@@ -279,12 +279,12 @@ namespace libgraphcpp
 
 
 	// save graph as OBJ file
-	void Graph::save(std::string output_file)
+	inline void Graph::save(std::string output_file)
 	{
 		writeGraphOBJ(nodes_, edges_, output_file);
 	};
 
-	bool Graph::print_isolated_vertices()
+	inline bool Graph::print_isolated_vertices()
 	{
 		for (int i=0; i<num_nodes_; i++)
 			if (adjacency_list_[i].size() == 0)
@@ -293,16 +293,16 @@ namespace libgraphcpp
 
 
 	// accessors
-	int Graph::num_nodes() { return num_nodes_; };
-	int Graph::num_edges() { return num_edges_; };
-	Eigen::MatrixXd Graph::get_nodes() { return nodes_; };
-	Eigen::Vector3d Graph::get_node(int i) { return nodes_.row(i); };
-	Eigen::MatrixXi Graph::get_edges() { return edges_; };
-	Eigen::Vector2i Graph::get_edge(int i) { return edges_.row(i); };
-	std::vector <int> Graph::get_adjacency_list(int i) { return adjacency_list_[i]; };
-	int Graph::get_adjacency_list(int i, int j) { return adjacency_list_[i][j]; };
+	inline int Graph::num_nodes() { return num_nodes_; };
+	inline int Graph::num_edges() { return num_edges_; };
+	inline Eigen::MatrixXd Graph::get_nodes() { return nodes_; };
+	inline Eigen::Vector3d Graph::get_node(int i) { return nodes_.row(i); };
+	inline Eigen::MatrixXi Graph::get_edges() { return edges_; };
+	inline Eigen::Vector2i Graph::get_edge(int i) { return edges_.row(i); };
+	inline std::vector <int> Graph::get_adjacency_list(int i) { return adjacency_list_[i]; };
+	inline int Graph::get_adjacency_list(int i, int j) { return adjacency_list_[i][j]; };
 
-	int Graph::find_edge_from_nodes(int node_1, int node_2)
+	inline int Graph::find_edge_from_nodes(int node_1, int node_2)
 	{
 		for (int i=0; i<num_edges_; i++) {
 			if (edges_(i, 0) == node_1 && edges_(i, 1) == node_2)
@@ -314,7 +314,7 @@ namespace libgraphcpp
 	};
 
 	// modifiers for nodes
-	bool Graph::add_node(Eigen::Vector3d node, std::vector<int> neighbours)
+	inline bool Graph::add_node(Eigen::Vector3d node, std::vector<int> neighbours)
 	{
 		// add node
 		Eigen::MatrixXd temp_nodes = nodes_;
@@ -335,7 +335,7 @@ namespace libgraphcpp
 		return true;
 	};
 
-	bool Graph::remove_node(int nodeToRemove) 
+	inline bool Graph::remove_node(int nodeToRemove) 
 	{
 		// remove node
 		removeRow(nodes_, nodeToRemove);
@@ -357,7 +357,7 @@ namespace libgraphcpp
 		return true;
 	};
 
-	bool Graph::merge_nodes(std::vector<int> nodes)
+	inline bool Graph::merge_nodes(std::vector<int> nodes)
 	{
 		// make sure there is no duplicates
 		sort( nodes.begin(), nodes.end() );
@@ -388,12 +388,12 @@ namespace libgraphcpp
 			remove_node(node);
 	};
 
-	bool Graph::update_node(int node_id, Eigen::Vector3d new_node)
+	inline bool Graph::update_node(int node_id, Eigen::Vector3d new_node)
 	{
 		nodes_.row(node_id) = new_node;
 	}
 
-	bool Graph::update_nodes(Eigen::MatrixXd new_nodes)
+	inline bool Graph::update_nodes(Eigen::MatrixXd new_nodes)
 	{
 		if (nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols()) {
 			nodes_ = new_nodes;
@@ -405,7 +405,7 @@ namespace libgraphcpp
 	};
 
 	// modifiers for edges
-	bool Graph::add_edge(Eigen::Vector2i edge)
+	inline bool Graph::add_edge(Eigen::Vector2i edge)
 	{
 		// add node
 		Eigen::MatrixXi temp_edges = edges_;
@@ -417,7 +417,7 @@ namespace libgraphcpp
 		return true;
 	};
 
-	bool Graph::remove_edge(int edgeToRemove) 
+	inline bool Graph::remove_edge(int edgeToRemove) 
 	{
 		// remove edge
 		removeRow(edges_, edgeToRemove);
@@ -428,7 +428,7 @@ namespace libgraphcpp
 	};
 
 	// replace an edge and its two connected nodes by a single node
-	bool Graph::collapse_edge(int edge_id)
+	inline bool Graph::collapse_edge(int edge_id)
 	{
 		// get nodes_id:
 		int node_1 = edges_(edge_id, 0);
@@ -466,7 +466,7 @@ namespace libgraphcpp
 
 
 	/* CONNECTIVITY TESTS */
-	bool Graph::connectivity_tests()
+	inline bool Graph::connectivity_tests()
 	{
 		is_connected();
 		is_biconnected();
@@ -474,7 +474,7 @@ namespace libgraphcpp
 		has_bridges();
 	};
 
-	bool Graph::is_connected()
+	inline bool Graph::is_connected()
 	{
 		if (is_connected_ == -1) {
 			// check for graph connectivity using DFS:
@@ -495,7 +495,7 @@ namespace libgraphcpp
 	};
 
 	// return the set of one cut vertices
-	bool Graph::is_biconnected(std::vector<int>& one_cut_vertices)
+	inline bool Graph::is_biconnected(std::vector<int>& one_cut_vertices)
 	{
 		if (is_biconnected_ == -1) {
 			// check for 2 node connectivity:
@@ -534,14 +534,14 @@ namespace libgraphcpp
 	};
 
 	// overload is_biconnected
-	bool Graph::is_biconnected()
+	inline bool Graph::is_biconnected()
 	{
 		std::vector< int > one_cut_vertices;
 		return is_biconnected(one_cut_vertices);
 	};
 
 	// return the set of two cut vertices
-	bool Graph::is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices)
+	inline bool Graph::is_triconnected(std::vector< std::pair<int, int> >& two_cut_vertices)
 	{ 
 		/* this function run in quadratic time, this is not the most efficient way to do it
 		* for alternative, see these papers:
@@ -586,14 +586,14 @@ namespace libgraphcpp
 	};
 	
 	// overload is_triconnected
-	bool Graph::is_triconnected()
+	inline bool Graph::is_triconnected()
 	{ 
 		std::vector< std::pair<int, int> > two_cut_vertices;
 		return is_triconnected(two_cut_vertices);
 	};
 
 	// return the set of bridges
-	bool Graph::has_bridges(std::vector<int>& bridges)
+	inline bool Graph::has_bridges(std::vector<int>& bridges)
 	{
 		if (has_bridges_ == -1) {
 			// check for bridges:
@@ -627,7 +627,7 @@ namespace libgraphcpp
 	};
 
 	// overload has_bridges
-	bool Graph::has_bridges()
+	inline bool Graph::has_bridges()
 	{
 		std::vector<int> bridges;
 		return has_bridges(bridges);
@@ -635,7 +635,7 @@ namespace libgraphcpp
 
 	// return a fundamental cycles basis (see: An Algorithm for Finding a Fundamental Set of Cycles of a Graph)
 	// should use DFS or BFS for generating the tree
-	bool Graph::has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths)
+	inline bool Graph::has_cycles(std::vector <std::vector<int>>& cycle_basis, std::vector<double>& cycle_lengths)
 	{
 		graphOptions opts = opts_;
 		opts.verbose = false;
@@ -662,7 +662,7 @@ namespace libgraphcpp
 	};
 
 	// overload has_cycle
-	bool Graph::has_cycles()
+	inline bool Graph::has_cycles()
 	{
 		std::vector <std::vector <int>> cycles;
 		std::vector<double> cycle_lengths;
@@ -670,7 +670,7 @@ namespace libgraphcpp
 	};
 
 
-	std::vector<std::vector <int> > Graph::make_tree(Eigen::MatrixXi& deleted_edges)
+	inline std::vector<std::vector <int> > Graph::make_tree(Eigen::MatrixXi& deleted_edges)
 	{
 		std::vector<std::vector <int> > nodes_references(num_nodes_);
 		for (int i=0; i<num_nodes_; i++)
@@ -725,13 +725,13 @@ namespace libgraphcpp
 	};
 
 	// overload make_tree if deleted edges are not needed
-	std::vector<std::vector <int> > Graph::make_tree()
+	inline std::vector<std::vector <int> > Graph::make_tree()
 	{
 		Eigen::MatrixXi deleted_edges;
 		return make_tree(deleted_edges);
 	};
 
-	void Graph::simplify_tree()
+	inline void Graph::simplify_tree()
 	{
 		/* 
 			* for each junctions:
@@ -798,7 +798,7 @@ namespace libgraphcpp
 
 	};
 
-	void Graph::symplify_graph()
+	inline void Graph::symplify_graph()
 	{
 		// list all cycles
 		std::vector< std::vector< int > > cycle_basis;
@@ -892,7 +892,7 @@ namespace libgraphcpp
 	// the listing of the triangles should be performed differently
 	// -> listing the fundamental cycles basis can be inacurate
 	// -> or replace by the minimal cycle basis
-	void Graph::remove_flat_triangles()
+	inline void Graph::remove_flat_triangles()
 	{
 		// list all cycles
 		std::vector< std::vector< int > > cycle_basis;
@@ -920,13 +920,13 @@ namespace libgraphcpp
 		}
 	};
 
-	bool Graph::transform (double scale, Eigen::Vector3d move) 
+	inline bool Graph::transform (double scale, Eigen::Vector3d move) 
 	{
 		nodes_ /= scale;
 		nodes_ += move.transpose();
 	};
 
-	double Graph::dijkstra(int source, int target, std::vector<int>& node_path) 
+	inline double Graph::dijkstra(int source, int target, std::vector<int>& node_path) 
 	{
 		// initialization
 		double distance_source_to_target;
@@ -992,7 +992,7 @@ namespace libgraphcpp
 		return min_distance.at(target);
 	};
 
-	double Graph::dijkstra(int source, int target)
+	inline double Graph::dijkstra(int source, int target)
 	{
 		std::vector<int> node_path;
 		return  dijkstra(source, target, node_path);
@@ -1001,17 +1001,17 @@ namespace libgraphcpp
 
 	/* TO BE REMOVED? This apply just for directional graph */
 
-	int Graph::edge_source(int i)
+	inline int Graph::edge_source(int i)
 	{
 		return edges_(i, 0);
 	};
 
-	int Graph::edge_target(int i) 
+	inline int Graph::edge_target(int i) 
 	{
 		return edges_(i, 1);
 	};
 
-	void Graph::swap_edge(int i) 
+	inline void Graph::swap_edge(int i) 
 	{
 		int temp = edges_(i,0);
 		edges_(i,0) = edges_(i,1);

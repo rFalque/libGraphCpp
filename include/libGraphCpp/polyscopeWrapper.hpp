@@ -22,25 +22,25 @@
 
 namespace visualization {
 
-    void init() {
+    inline void init() {
             polyscope::options::autocenterStructures = true;
             polyscope::view::windowWidth = 1024;
             polyscope::view::windowHeight = 1024;
             polyscope::view::style = polyscope::view::NavigateStyle::Free;
     }
 
-    void close() {
+    inline void close() {
         polyscope::removeAllStructures();
     }
 
     // meshes
-    void add_mesh(const Eigen::MatrixXd& vertices, const Eigen::MatrixXi& faces, std::string mesh_name) {
+    inline void add_mesh(const Eigen::MatrixXd& vertices, const Eigen::MatrixXi& faces, std::string mesh_name) {
         polyscope::registerSurfaceMesh(mesh_name, vertices, faces);
         polyscope::getSurfaceMesh(mesh_name)->setSurfaceColor(glm::vec3{0.1, 0.1, 1});
         polyscope::view::resetCameraToHomeView();
     }
 
-    void add_color_to_mesh(const Eigen::MatrixXd & colors, std::string mesh_name, std::string color_name) {
+    inline void add_color_to_mesh(const Eigen::MatrixXd & colors, std::string mesh_name, std::string color_name) {
         if (colors.rows() != 0){
             polyscope::getSurfaceMesh(mesh_name)->addVertexColorQuantity(color_name, colors);
             polyscope::getSurfaceMesh(mesh_name)->getQuantity(color_name)->setEnabled(true);
@@ -49,13 +49,13 @@ namespace visualization {
     
     
     // cloud
-    void add_cloud(const Eigen::MatrixXd & cloud, std::string cloud_name) {
+    inline void add_cloud(const Eigen::MatrixXd & cloud, std::string cloud_name) {
         polyscope::registerPointCloud(cloud_name, cloud);
         polyscope::getPointCloud(cloud_name)->setPointColor(glm::vec3{0.1, 0.1, 1});
         polyscope::view::resetCameraToHomeView();
     }
 
-    void add_color_to_cloud(const Eigen::MatrixXd & colors, std::string cloud_name, std::string color_name) {
+    inline void add_color_to_cloud(const Eigen::MatrixXd & colors, std::string cloud_name, std::string color_name) {
         if (colors.rows() != 0){
             polyscope::getPointCloud(cloud_name)->addColorQuantity(color_name, colors);
             polyscope::getPointCloud(cloud_name)->getQuantity(color_name)->setEnabled(true);
@@ -64,7 +64,7 @@ namespace visualization {
 
 
     // graph
-	void add_graph(const Eigen::MatrixXd & nodes,
+	inline void add_graph(const Eigen::MatrixXd & nodes,
 				   const Eigen::MatrixXi & edges, 
 				   std::string graph_name) {
 		polyscope::registerPointCloud(graph_name+"_nodes", nodes);
@@ -73,7 +73,7 @@ namespace visualization {
         polyscope::getCurveNetwork(graph_name+"_edges")->setColor(glm::vec3{0, 0, 0});
 	}
 
-	void add_color_to_graph(const Eigen::MatrixXd & nodes_colors,
+	inline void add_color_to_graph(const Eigen::MatrixXd & nodes_colors,
 							const Eigen::MatrixXd & edges_colors,
 							std::string graph_name,
 							std::string color_name) {
@@ -87,7 +87,7 @@ namespace visualization {
 		}
 	}
 
-	void add_vector_quantity_to_graph(const Eigen::VectorXd & nodes_colors,
+	inline void add_vector_quantity_to_graph(const Eigen::VectorXd & nodes_colors,
 									  const Eigen::VectorXd & edges_colors,
 									  std::string graph_name,
 									  std::string vector_quantity_name) {
@@ -101,7 +101,7 @@ namespace visualization {
 		}
 	}
 
-	void add_scalar_quantity_to_graph(const Eigen::VectorXd & nodes_colors,
+	inline void add_scalar_quantity_to_graph(const Eigen::VectorXd & nodes_colors,
 									  const Eigen::VectorXd & edges_colors,
 									  std::string graph_name,
 									  std::string scalar_quantity_name) {
@@ -117,7 +117,7 @@ namespace visualization {
 
 
     // vectors
-    void add_vectors(const Eigen::MatrixXd& vectors_begin, const Eigen::MatrixXd& vectors_end, std::string vectors_name) {
+    inline void add_vectors(const Eigen::MatrixXd& vectors_begin, const Eigen::MatrixXd& vectors_end, std::string vectors_name) {
         polyscope::registerPointCloud(vectors_name, vectors_begin);
         polyscope::getPointCloud(vectors_name)->addVectorQuantity("vectors", vectors_end - vectors_begin, polyscope::VectorType::STANDARD);
         polyscope::getPointCloud(vectors_name)->getQuantity("vectors")->setEnabled(true);
@@ -126,15 +126,15 @@ namespace visualization {
 
 
     // tools
-    void show() {
+    inline void show() {
         polyscope::show();
     }
 
-    void screenshot(std::string screenshot_path) {
+    inline void screenshot(std::string screenshot_path) {
         polyscope::screenshot(screenshot_path, false);
     }
 
-    void clear_structures() {
+    inline void clear_structures() {
         polyscope::removeAllStructures();
     }
 
