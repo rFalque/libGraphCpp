@@ -4,6 +4,7 @@
  * 22/06/2019
  **/
 
+#include "polyscope/polyscope.h"
 #include "libGraphCpp/graph.hpp"
 #include "libGraphCpp/plotGraph.hpp"
 
@@ -11,6 +12,8 @@
 
 int main(int argc, char* argv[])
 {
+    polyscope::init();
+
     std::cout << "Progress: load options\n";
     graphOptions opts;
     opts.loadYAML("../config.yaml");

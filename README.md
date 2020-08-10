@@ -18,7 +18,7 @@ To build the library and the example
 ```bash
 mkdir build
 cd build
-cmake ../src
+cmake ..
 make
 ```
 

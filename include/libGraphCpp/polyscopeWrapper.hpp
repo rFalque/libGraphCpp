@@ -22,18 +22,11 @@
 
 namespace visualization {
 
-    bool polyscope_is_inizialized = false; 
-
     void init() {
-        if (not polyscope_is_inizialized) {
-            // Options set up
-            polyscope::init();
             polyscope::options::autocenterStructures = true;
             polyscope::view::windowWidth = 1024;
             polyscope::view::windowHeight = 1024;
             polyscope::view::style = polyscope::view::NavigateStyle::Free;
-            polyscope_is_inizialized = true;
-        }
     }
 
     void close() {
