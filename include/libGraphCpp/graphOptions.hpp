@@ -51,6 +51,8 @@ struct graphOptions
 
         if (verbose)
             print();
+        
+        return true;
     }
 };
 

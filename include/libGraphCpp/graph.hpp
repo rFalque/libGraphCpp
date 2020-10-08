@@ -57,7 +57,6 @@ namespace libgraphcpp
 		inline void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove);
 		inline void removeDuplicates(std::vector<std::pair<int, int>>& v);
 		inline bool is_element_in_vector(int a, std::vector<int> & A);
-		inline bool return_colors_highlight(std::vector<int> element_to_highlight, int size_array, Eigen::MatrixXd &color);
 
 		// internal functions: iterative functions (defined at the bottom of the file)
 		inline void DFSUtil(int u, std::vector< std::vector<int> > adj, std::vector<bool> &visited);
@@ -75,13 +74,13 @@ namespace libgraphcpp
 		inline ~Graph(){};
 
 		// initialisation of the private variables
-		inline bool init();
+		inline void init();
 		inline void set_adjacency_lists();
 
 
 		// save graph as OBJ file
 		inline void save(std::string output_file);
-		inline bool print_isolated_vertices();
+		inline void print_isolated_vertices();
 
 
 		// accessors
@@ -97,20 +96,20 @@ namespace libgraphcpp
 
 
 		// modifiers for nodes
-		inline bool add_node(Eigen::Vector3d node, std::vector<int> neighbours);
-		inline bool remove_node(int nodeToRemove);
-		inline bool merge_nodes(std::vector<int> nodes);
-		inline bool update_node(int node_id, Eigen::Vector3d new_node);
-		inline bool update_nodes(Eigen::MatrixXd new_nodes);
+		inline void add_node(Eigen::Vector3d node, std::vector<int> neighbours);
+		inline void remove_node(int nodeToRemove);
+		inline void merge_nodes(std::vector<int> nodes);
+		inline void update_node(int node_id, Eigen::Vector3d new_node);
+		inline void update_nodes(Eigen::MatrixXd new_nodes);
 
 		// modifiers for edges
-		inline bool add_edge(Eigen::Vector2i edge);
-		inline bool remove_edge(int edgeToRemove);
-		inline bool collapse_edge(int edge_id);
+		inline void add_edge(Eigen::Vector2i edge);
+		inline void remove_edge(int edgeToRemove);
+		inline void collapse_edge(int edge_id);
 
 
 		/* CONNECTIVITY TESTS */
-		inline bool connectivity_tests();
+		inline void connectivity_tests();
 		inline bool is_connected();
 		inline bool is_biconnected(std::vector<int>& one_cut_vertices);
 		inline bool is_biconnected();
@@ -128,7 +127,7 @@ namespace libgraphcpp
 		inline void simplify_tree();
 		inline void symplify_graph();
         inline void remove_flat_triangles();
-		inline bool transform (double scale, Eigen::Vector3d move);
+		inline void transform (double scale, Eigen::Vector3d move);
 		inline double dijkstra(int source, int target, std::vector<int>& node_path);
 		inline double dijkstra(int source, int target);
 
@@ -213,7 +212,7 @@ namespace libgraphcpp
 	};
 
 	// initialisation of the private variables
-	inline bool Graph::init()
+	inline void Graph::init()
 	{
 		if (nodes_.cols()!=3 || edges_.cols()!=2) {
 			std::cout << "\nLibGraphCpp error: wrong graph dimensions in the class initialization" << std::endl;
@@ -249,8 +248,6 @@ namespace libgraphcpp
 		
 		// set up the adjacency list
 		set_adjacency_lists();
-
-		return true;
 	};
 
 	inline void Graph::set_adjacency_lists()
@@ -284,7 +281,7 @@ namespace libgraphcpp
 		writeGraphOBJ(nodes_, edges_, output_file);
 	};
 
-	inline bool Graph::print_isolated_vertices()
+	inline void Graph::print_isolated_vertices()
 	{
 		for (int i=0; i<num_nodes_; i++)
 			if (adjacency_list_[i].size() == 0)
@@ -314,7 +311,7 @@ namespace libgraphcpp
 	};
 
 	// modifiers for nodes
-	inline bool Graph::add_node(Eigen::Vector3d node, std::vector<int> neighbours)
+	inline void Graph::add_node(Eigen::Vector3d node, std::vector<int> neighbours)
 	{
 		// add node
 		Eigen::MatrixXd temp_nodes = nodes_;
@@ -331,11 +328,9 @@ namespace libgraphcpp
 		edges_ << temp_edges, edges_to_add;
 
 		init();
-
-		return true;
 	};
 
-	inline bool Graph::remove_node(int nodeToRemove) 
+	inline void Graph::remove_node(int nodeToRemove) 
 	{
 		// remove node
 		removeRow(nodes_, nodeToRemove);
@@ -353,11 +348,9 @@ namespace libgraphcpp
 					edges_(i,j)--;
 
 		init();
-
-		return true;
 	};
 
-	inline bool Graph::merge_nodes(std::vector<int> nodes)
+	inline void Graph::merge_nodes(std::vector<int> nodes)
 	{
 		// make sure there is no duplicates
 		sort( nodes.begin(), nodes.end() );
@@ -388,12 +381,12 @@ namespace libgraphcpp
 			remove_node(node);
 	};
 
-	inline bool Graph::update_node(int node_id, Eigen::Vector3d new_node)
+	inline void Graph::update_node(int node_id, Eigen::Vector3d new_node)
 	{
 		nodes_.row(node_id) = new_node;
 	}
 
-	inline bool Graph::update_nodes(Eigen::MatrixXd new_nodes)
+	inline void Graph::update_nodes(Eigen::MatrixXd new_nodes)
 	{
 		if (nodes_.rows() == new_nodes.rows() && nodes_.cols() == new_nodes.cols()) {
 			nodes_ = new_nodes;
@@ -405,7 +398,7 @@ namespace libgraphcpp
 	};
 
 	// modifiers for edges
-	inline bool Graph::add_edge(Eigen::Vector2i edge)
+	inline void Graph::add_edge(Eigen::Vector2i edge)
 	{
 		// add node
 		Eigen::MatrixXi temp_edges = edges_;
@@ -413,22 +406,18 @@ namespace libgraphcpp
 		edges_ << temp_edges, edge.transpose();
 		
 		init();
-
-		return true;
 	};
 
-	inline bool Graph::remove_edge(int edgeToRemove) 
+	inline void Graph::remove_edge(int edgeToRemove) 
 	{
 		// remove edge
 		removeRow(edges_, edgeToRemove);
 
 		init();
-
-		return true;
 	};
 
 	// replace an edge and its two connected nodes by a single node
-	inline bool Graph::collapse_edge(int edge_id)
+	inline void Graph::collapse_edge(int edge_id)
 	{
 		// get nodes_id:
 		int node_1 = edges_(edge_id, 0);
@@ -460,13 +449,11 @@ namespace libgraphcpp
 			remove_node(node_2);
 			remove_node(node_1);
 		}
-
-		return true;
 	};
 
 
 	/* CONNECTIVITY TESTS */
-	inline bool Graph::connectivity_tests()
+	inline void Graph::connectivity_tests()
 	{
 		is_connected();
 		is_biconnected();
@@ -920,7 +907,7 @@ namespace libgraphcpp
 		}
 	};
 
-	inline bool Graph::transform (double scale, Eigen::Vector3d move) 
+	inline void Graph::transform (double scale, Eigen::Vector3d move) 
 	{
 		nodes_ /= scale;
 		nodes_ += move.transpose();
