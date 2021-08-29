@@ -13,7 +13,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 
 ### add polyscope
-message("get polyscope")
 include(FetchContent)
 FetchContent_Declare(
     polyscope
@@ -22,9 +21,13 @@ FetchContent_Declare(
     GIT_TAG        56b82cd
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/polyscope"
 )
-FetchContent_Populate(polyscope)
 
-add_subdirectory(polyscope)
+FetchContent_GetProperties(polyscope)
+if(NOT polyscope_POPULATED)
+    message("libGraphCpp: fetch polyscope")
+    FetchContent_Populate(polyscope)
+    add_subdirectory(polyscope)
+endif()
 
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -67,7 +70,7 @@ include_directories(${PROJECT_NAME}_bin
 			${EIGEN3_INCLUDE_DIR}
 			)
 
-target_link_libraries(${PROJECT_NAME}_bin 
+target_link_libraries(${PROJECT_NAME}_bin
             libGraphCpp
 			polyscope
 			yaml-cpp
