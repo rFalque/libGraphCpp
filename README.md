@@ -26,7 +26,7 @@ to build and run the tests:
 ```bash
 mkdir build_tests
 cd build_tests
-cmake ../src/tests
+cmake ../tests
 make
 ```
 

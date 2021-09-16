@@ -35,8 +35,6 @@ endif()
 
 option(YAML_CPP_BUILD_TOOLS "Enable testing and parse tools" OFF)
 
-add_subdirectory(../external_library ${CMAKE_CURRENT_BINARY_DIR}/external_library)
-
 set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
@@ -57,14 +55,12 @@ add_executable(${PROJECT_NAME}_bin ${SRCFILES})
 set_target_properties(${PROJECT_NAME}_bin PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES)
 
 include_directories(${PROJECT_NAME}_bin
-			${PROJECT_SOURCE_DIR}/external_library/
 			${YAML_CPP_INCLUDE_DIR}
 			${EIGEN3_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME}_bin
 			${YAML_CPP_LIBRARIES}
 			gtest_main
-			polyscope
       )
 
 add_test(NAME example_test COMMAND example)
