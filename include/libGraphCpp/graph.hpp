@@ -506,12 +506,10 @@ namespace libgraphcpp
 						std::cout << "Articulation point " << i << " at: "  << nodes_.row(i) << std::endl;
 				}
 			is_biconnected_ = std::none_of(ap.begin(), ap.end(), [](bool v) { return v; });
-
-			// if not biconnected, update triconnectivity
-			if (is_biconnected_ == 0)
-				is_triconnected_ = 0;
 			
 			one_cut_vertices_ = one_cut_vertices;
+		} else {
+			one_cut_vertices = one_cut_vertices_;
 		}
 
 		if (opts_.verbose)
@@ -559,9 +557,9 @@ namespace libgraphcpp
 
 			removeDuplicates(two_cut_vertices);
 			two_cut_vertices_ = two_cut_vertices;
+		} else {
+			two_cut_vertices = two_cut_vertices_;
 		}
-
-
 
 		if (opts_.verbose) {
 			std::cout << "graph is 3-connected: " << is_triconnected_ << std::endl;
@@ -605,6 +603,8 @@ namespace libgraphcpp
 				has_bridges_ = 1;
 			
 			bridges_ = bridges;
+		} else {
+			bridges = bridges_;
 		}
 
 		if (opts_.verbose)
