@@ -42,7 +42,6 @@ namespace visualization {
 
     inline void return_colors_highlight(std::vector<int> element_to_highlight, int size_array, Eigen::MatrixXd & colors) {
         colors = Eigen::MatrixXd::Constant(size_array,3,0.1);
-
         for (int element: element_to_highlight) {
             colors(element, 0) = 0.1;
             colors(element, 1) = 0.1;
@@ -51,7 +50,7 @@ namespace visualization {
     };
 
     inline void plot_connectivity(libgraphcpp::Graph graph) {
-
+        
         graph.connectivity_tests();
         Eigen::MatrixXd empty; 			// used to pass empty content
         Eigen::MatrixXd highlights;
@@ -63,6 +62,7 @@ namespace visualization {
         // add color for the one cut vertices
         std::vector<int> one_cut_vertices;
         graph.is_biconnected(one_cut_vertices);
+        
         return_colors_highlight(one_cut_vertices, graph.num_nodes(), highlights);
         visualization::add_color_to_graph(highlights, empty, "graph_connectivity", "one_cut_vertices");
 
@@ -74,13 +74,15 @@ namespace visualization {
             temp.push_back(p.first);
             temp.push_back(p.second);
         }
+
         return_colors_highlight(temp, graph.num_nodes(), highlights);
         visualization::add_color_to_graph(highlights, empty, "graph_connectivity", "two_cut_vertices");
 
         // add color for the bridges
         std::vector<int> bridges;
         graph.has_bridges(bridges);
-        return_colors_highlight(temp, graph.num_edges(), highlights);
+
+        return_colors_highlight(bridges, graph.num_edges(), highlights);
         visualization::add_color_to_graph(empty, highlights, "graph_connectivity", "bridges");
 
         visualization::show();
