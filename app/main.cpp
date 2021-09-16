@@ -19,13 +19,23 @@ int main(int argc, char* argv[])
     opts.loadYAML("../config.yaml");
 
 
+    std::cout << "Show monkey sample\n";
+    libgraphcpp::Graph monkey_graph("../data/monkey_connected.obj", opts);
+    visualization::plot(monkey_graph);
+
+
+    std::cout << "Show crab sample\n";
+    libgraphcpp::Graph crab_graph("../data/crab_skeleton_graph.obj", opts);
+    visualization::plot(crab_graph);
+
+    std::cout << "Progress: plot connectivity (from the library)\n";
+    visualization::plot_connectivity(crab_graph);
+
     std::cout << "Progress: load graph\n";
     libgraphcpp::Graph graph(opts.path_graph_obj, opts);
 
-
     std::cout << "Progress: plot graph\n";
     visualization::plot(graph);
-
 
     std::cout << "Progress: test connectivity\n";
     bool is_connected, is_biconnected, is_triconnected, has_bridges;
